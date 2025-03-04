@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 
 namespace ConfigurationFile
 {
@@ -6,7 +7,8 @@ namespace ConfigurationFile
     {
         static void Main(string[] args)
         {
-            string value = ConfigurationManager.AppSettings["TestPath"];
+            var siteUrl = ConfigurationManager.AppSettings["SiteUrl"];
+            Console.WriteLine($"{siteUrl}");
         }
     }
 }
