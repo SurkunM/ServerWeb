@@ -3,7 +3,7 @@ using System.Data;
 
 namespace ADO.NET;
 
-internal class ADONetMain
+internal class ADONetProgram
 {
     static private int GetProductsCount(SqlConnection connection)
     {
