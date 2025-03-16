@@ -3,12 +3,12 @@ using System.Configuration;
 
 namespace ConfigurationFile
 {
-    internal class ConfigurationFileMain
+    internal class ConfigurationFileProgram
     {
         static void Main(string[] args)
         {
             var siteUrl = ConfigurationManager.AppSettings["SiteUrl"];
-            Console.WriteLine($"{siteUrl}");
+            Console.WriteLine(siteUrl);
         }
     }
 }
