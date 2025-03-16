@@ -5,7 +5,7 @@ namespace ShopEF;
 
 internal class ShopProgram
 {
-    static private Product CrateProduct(ShopDbContext db, Category category, string name, decimal price)
+    static private Product CrateProduct(Category category, string name, decimal price)
     {
         var product = new Product
         {
@@ -13,8 +13,6 @@ internal class ShopProgram
             Price = price,
             Category = category
         };
-
-        db.Products.Add(product);
 
         return product;
     }
@@ -33,6 +31,99 @@ internal class ShopProgram
         return buyer;
     }
 
+    static private OrderProduct CreateOrderProducts(Order order, Product product)
+    {
+        var orderProduct = new OrderProduct
+        {
+            Product = product,
+            Order = order
+        };
+
+        return orderProduct;
+    }
+
+    static private void AddContext(ShopDbContext shopDb)
+    {
+        var category1 = new Category
+        {
+            Name = "Морепродукты"
+        };
+
+        var product1 = CrateProduct(category1, "Минтай", 35);
+        var product2 = CrateProduct(category1, "Морская капуста", 25);
+
+        shopDb.Products.Add(product1);
+        shopDb.Products.Add(product2);
+
+        var category2 = new Category
+        {
+            Name = "Напитки"
+        };
+
+        var product3 = CrateProduct(category2, "Чай", 15);
+        var product4 = CrateProduct(category2, "Вода", 5);
+
+        shopDb.Products.Add(product3);
+        shopDb.Products.Add(product4);
+
+        var category3 = new Category
+        {
+            Name = "Молочные продукты"
+        };
+
+        var product5 = CrateProduct(category3, "Молоко", 25);
+        var product6 = CrateProduct(category3, "Сыр", 20);
+
+        shopDb.Products.Add(product5);
+        shopDb.Products.Add(product6);
+
+        var buyer1 = CreateBuyer("Иван", "Иванов", "Иванович", "Ivanov@mail.ru", 5123);
+        var buyer2 = CreateBuyer("Степан", "Степанов", "Степанович", "S2000@mail.ru", 2000);
+
+        var order1 = new Order
+        {
+            Buyer = buyer1,
+            OrderDate = new DateTime(2025, 3, 15, 12, 30, 02),
+        };
+
+        var orderProducts1 = CreateOrderProducts(order1, product1);
+        var orderProducts2 = CreateOrderProducts(order1, product5);
+
+        order1.OrderProducts = new List<OrderProduct>
+        {
+            orderProducts1,
+            orderProducts2
+        };
+
+        var order2 = new Order
+        {
+            Buyer = buyer2,
+            OrderDate = new DateTime(2025, 3, 14, 10, 00, 48),
+        };
+
+        var orderProducts3 = CreateOrderProducts(order2, product3);
+        var orderProducts4 = CreateOrderProducts(order2, product2);
+        var orderProducts5 = CreateOrderProducts(order2, product1);
+
+
+        order2.OrderProducts = new List<OrderProduct>
+        {
+            orderProducts3,
+            orderProducts4,
+            orderProducts5
+        };
+
+        shopDb.Orders.Add(order1);
+        shopDb.Orders.Add(order2);
+
+        shopDb.SaveChanges();
+    }
+
+    static private void ChangingData(ShopDbContext shopDb)
+    {
+        shopDb.Products.FirstOrDefault();
+    }
+
     static void Main(string[] args)
     {
         try
@@ -42,63 +133,8 @@ internal class ShopProgram
             shopDb.Database.EnsureDeleted();
             shopDb.Database.EnsureCreated();
 
-            var category1 = new Category
-            {
-                Name = "Морепродукты"
-            };
-
-            var product1 = CrateProduct(shopDb, category1, "Минтай", 35);
-            var product2 = CrateProduct(shopDb, category1, "Морская капуста", 25);
-
-            var category2 = new Category
-            {
-                Name = "Напитки"
-            };
-
-            var product3 = CrateProduct(shopDb, category2, "Чай", 15);
-            var product4 = CrateProduct(shopDb, category2, "Вода", 5);
-
-            var category3 = new Category
-            {
-                Name = "Молочные продукты"
-            };
-
-            var product5 = CrateProduct(shopDb, category3, "Молоко", 25);
-            var product6 = CrateProduct(shopDb, category3, "Сыр", 20);
-
-            var buyer1 = CreateBuyer("Иван", "Иванов", "Иванович", "Ivanov@mail.ru", 5123);
-            var buyer2 = CreateBuyer("Степан", "Степанов", "Степанович", "S2000@mail.ru", 2000);
-
-            var order1 = new Order
-            {
-                Buyer = buyer1,
-                OrderDate = new DateTime(2025, 3, 15, 12, 30, 02),
-                Products = new List<Product>
-                {
-                    product1,
-                    product3,
-                    product5
-                }
-            };
-
-            shopDb.Orders.Add(order1);
-
-            var order2 = new Order
-            {
-                Buyer = buyer2,
-                OrderDate = new DateTime(2025, 3, 14, 10, 00, 48),
-                Products = new List<Product>
-                {
-                    product1,
-                    product2,
-                    product3,
-                    product6
-                }
-            };
-
-            shopDb.Orders.Add(order2);
-
-            shopDb.SaveChanges();
+            AddContext(shopDb);
+            ChangingData(shopDb);
         }
         catch (SqlException)
         {

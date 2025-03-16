@@ -13,6 +13,8 @@ class ShopDbContext : DbContext
 
     public DbSet<Buyer> Buyers { get; set; }
 
+    public DbSet<OrderProduct> OrderProducts { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
         options.UseSqlServer("Server=.;Database=Shop;Integrated Security=True;MultipleActiveResultSets=true;TrustServerCertificate=True;");
@@ -33,6 +35,17 @@ class ShopDbContext : DbContext
         modelBuilder.Entity<Order>()
             .HasOne(c => c.Buyer)
             .WithMany(c => c.Orders)
-            .HasForeignKey(c => c.BuyerId);        
+            .HasForeignKey(c => c.BuyerId);
+
+        modelBuilder.Entity<OrderProduct>(b =>
+        {
+            b.HasOne(po => po.Order)
+                .WithMany(o => o.OrderProducts)
+                .HasForeignKey(po => po.OrderId);
+
+            b.HasOne(po => po.Product)
+                .WithMany(p => p.OrderProducts)
+                .HasForeignKey(po => po.ProductId);
+        });
     }
 }

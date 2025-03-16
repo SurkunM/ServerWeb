@@ -11,4 +11,6 @@ class Product
     public int CategoryId { get; set; }
 
     public Category? Category { get; set; }
+
+    public List<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
 }
