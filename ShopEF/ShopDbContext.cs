@@ -20,7 +20,7 @@ class ShopDbContext : DbContext
         options.UseSqlServer("Server=.;Database=Shop;Integrated Security=True;MultipleActiveResultSets=true;TrustServerCertificate=True;");
     }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)//Настроить поля остальных таблиц так же как у Category
     {
         modelBuilder.Entity<Category>()
             .Property(c => c.Name)

@@ -119,9 +119,38 @@ internal class ShopProgram
         shopDb.SaveChanges();
     }
 
-    static private void ChangingData(ShopDbContext shopDb)
+    static private void UpdateProductPrice(ShopDbContext shopDb, string name, decimal price)
     {
-        shopDb.Products.FirstOrDefault();
+        var product = shopDb.Products.FirstOrDefault(p => p.Name == name);
+
+        if (product is null)
+        {
+            Console.WriteLine("Не удалось изменить цену. Продукт не был найден");
+
+            return;
+        }
+
+        product.Price = price;
+        shopDb.SaveChanges();
+
+        Console.WriteLine("Цена изменена");
+    }
+
+    static private void DeleteProduct(ShopDbContext shopDb, string name)
+    {
+        var product = shopDb.Products.FirstOrDefault(p => p.Name == name);
+
+        if (product is null)
+        {
+            Console.WriteLine("Не удалось удалить. Продукт не был найден");
+
+            return;
+        }
+
+        shopDb.Remove(product);
+        shopDb.SaveChanges();
+
+        Console.WriteLine("Продукт удален");
     }
 
     static void Main(string[] args)
@@ -134,7 +163,17 @@ internal class ShopProgram
             shopDb.Database.EnsureCreated();
 
             AddContext(shopDb);
-            ChangingData(shopDb);
+
+            UpdateProductPrice(shopDb, "Вода", 20);
+            DeleteProduct(shopDb, "Вода");
+
+            var mostPurchasedProduct = shopDb.OrderProducts
+                .Select(p => p.ProductId)
+                .GroupBy(p => p);
+
+            Console.WriteLine("Самый покупаемый товар {0}", mostPurchasedProduct);
+
+            string clientsSpentMoneyDictionary;
         }
         catch (SqlException)
         {
