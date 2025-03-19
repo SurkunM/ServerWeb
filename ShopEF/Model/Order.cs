@@ -1,6 +1,6 @@
 ﻿namespace ShopEF.Model;
 
-class Order
+public class Order
 {
     public int Id { get; set; }
 
@@ -8,7 +8,7 @@ class Order
 
     public int BuyerId { get; set; }
 
-    public Buyer? Buyer { get; set; }
+    public virtual Buyer? Buyer { get; set; }
 
-    public List<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
+    public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
 }

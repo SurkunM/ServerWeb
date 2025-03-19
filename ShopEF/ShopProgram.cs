@@ -1,5 +1,8 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using ShopEF.Model;
+using System.Data.Common;
+using System.Net.NetworkInformation;
 
 namespace ShopEF;
 
@@ -17,7 +20,7 @@ internal class ShopProgram
         return product;
     }
 
-    static private Buyer CreateBuyer(string firstName, string lastName, string middleName, string email, int phone)
+    static private Buyer CreateBuyer(string firstName, string lastName, string middleName, string email, string phone)
     {
         var buyer = new Buyer
         {
@@ -72,13 +75,13 @@ internal class ShopProgram
         };
 
         var product5 = CrateProduct(category3, "Молоко", 25);
-        var product6 = CrateProduct(category3, "Сыр", 20);
+        var product6 = CrateProduct(category3, "Сыр", 120);
 
         shopDb.Products.Add(product5);
         shopDb.Products.Add(product6);
 
-        var buyer1 = CreateBuyer("Иван", "Иванов", "Иванович", "Ivanov@mail.ru", 5123);
-        var buyer2 = CreateBuyer("Степан", "Степанов", "Степанович", "S2000@mail.ru", 2000);
+        var buyer1 = CreateBuyer("Иван", "Иванов", "Иванович", "Ivanov@mail.ru", "5123");
+        var buyer2 = CreateBuyer("Степан", "Степанов", "Степанович", "S2000@mail.ru", "2000");
 
         var order1 = new Order
         {
@@ -86,13 +89,15 @@ internal class ShopProgram
             OrderDate = new DateTime(2025, 3, 15, 12, 30, 02),
         };
 
-        var orderProducts1 = CreateOrderProducts(order1, product1);
-        var orderProducts2 = CreateOrderProducts(order1, product5);
+        var orderProducts1 = CreateOrderProducts(order1, product6);
+        var orderProducts2 = CreateOrderProducts(order1, product2);
+        var orderProducts6 = CreateOrderProducts(order1, product2);
 
         order1.OrderProducts = new List<OrderProduct>
         {
             orderProducts1,
-            orderProducts2
+            orderProducts2,
+            orderProducts6
         };
 
         var order2 = new Order
@@ -153,6 +158,55 @@ internal class ShopProgram
         Console.WriteLine("Продукт удален");
     }
 
+    static private void SendLinqQueries(ShopDbContext shopDb)
+    {
+        var orderProductsArray = shopDb.OrderProducts
+            .Include(op => op.Product)
+            .ToArray();
+
+        var mostPurchasedProduct = orderProductsArray
+            .GroupBy(p => p.ProductId)
+            .Select(p => new
+            {
+                p.FirstOrDefault(p1 => p1.ProductId == p.Key)?.Product?.Name,
+                Count = p.Count()
+            })
+            .OrderByDescending(p => p.Count)
+            .FirstOrDefault();
+
+        if (mostPurchasedProduct is null)
+        {
+            Console.WriteLine("Список товаров пусть");
+        }
+        else
+        {
+            Console.WriteLine("Самый часто покупаемый товар: {0}", mostPurchasedProduct.Name is null ? "\"не найден\"" : mostPurchasedProduct.Name);
+        }
+
+        var clientsSpentMoneyDictionary = orderProductsArray
+            .Select(p => new
+            {
+                p.Order.BuyerId,
+                p.Product?.Price
+
+            })
+            .GroupBy(p => p.BuyerId)
+            .ToDictionary(p => p.Key, p => p.Sum(p1 => p1.Price));
+
+        foreach (var clientId in clientsSpentMoneyDictionary)
+        {
+            Console.WriteLine("Покупатель {0}, сумма заказа {1}", clientId.Key, clientId.Value);
+        }
+
+        var categoryProductCount = orderProductsArray
+            .Select(p => new
+            {
+                p.Product?.Category?.Name,
+                Count = p.Product?.CategoryId
+            })
+            .GroupBy(p => p.Count);
+    }
+
     static void Main(string[] args)
     {
         try
@@ -167,13 +221,7 @@ internal class ShopProgram
             UpdateProductPrice(shopDb, "Вода", 20);
             DeleteProduct(shopDb, "Вода");
 
-            var mostPurchasedProduct = shopDb.OrderProducts
-                .Select(p => p.ProductId)
-                .GroupBy(p => p);
-
-            Console.WriteLine("Самый покупаемый товар {0}", mostPurchasedProduct);
-
-            string clientsSpentMoneyDictionary;
+            SendLinqQueries(shopDb);
         }
         catch (SqlException)
         {

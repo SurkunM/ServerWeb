@@ -1,6 +1,6 @@
 ﻿namespace ShopEF.Model;
 
-class Product
+public class Product
 {
     public int Id { get; set; }
 
@@ -10,7 +10,7 @@ class Product
 
     public int CategoryId { get; set; }
 
-    public Category? Category { get; set; }
+    public virtual Category? Category { get; set; }
 
-    public List<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
+    public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
 }

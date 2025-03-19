@@ -1,6 +1,6 @@
 ﻿namespace ShopEF.Model;
 
-class Buyer
+public class Buyer
 {
     public int Id { get; set; }
 
@@ -10,9 +10,9 @@ class Buyer
 
     public string? MiddleName { get; set; }
 
-    public int? Phone { get; set; }
+    public string? Phone { get; set; }
 
     public string? Email { get; set; }    
 
-    public List<Order> Orders { get; set; } = new List<Order>();
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }
