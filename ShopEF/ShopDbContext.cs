@@ -18,8 +18,7 @@ class ShopDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder
-            .UseLazyLoadingProxies()
-            //.LogTo(Console.WriteLine)
+            .UseLazyLoadingProxies()            
             .UseSqlServer("Server=.;Database=Shop;Integrated Security=True;MultipleActiveResultSets=true;TrustServerCertificate=True;");
     }
 

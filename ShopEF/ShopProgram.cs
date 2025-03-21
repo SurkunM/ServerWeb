@@ -89,7 +89,7 @@ internal class ShopProgram
             OrderDate = new DateTime(2025, 3, 15, 12, 30, 02),
         };
 
-        var orderProducts1 = CreateOrderProducts(order1, product6);
+        var orderProducts1 = CreateOrderProducts(order1, product3);
         var orderProducts2 = CreateOrderProducts(order1, product2);
         var orderProducts6 = CreateOrderProducts(order1, product2);
 
@@ -186,8 +186,8 @@ internal class ShopProgram
         var clientsSpentMoneyDictionary = orderProductsArray
             .Select(p => new
             {
-                p.Order.BuyerId,
-                p.Product?.Price
+                p.Order!.BuyerId,
+                p.Product?.Price,
 
             })
             .GroupBy(p => p.BuyerId)
@@ -198,13 +198,27 @@ internal class ShopProgram
             Console.WriteLine("Покупатель {0}, сумма заказа {1}", clientId.Key, clientId.Value);
         }
 
-        var categoryProductCount = orderProductsArray
-            .Select(p => new
+        var productsCollection = shopDb.Products
+            .Include(c => c.OrderProducts)
+            .Include(c => c.Category)
+            .ToArray();
+
+
+        var categoryProductCount = productsCollection
+            .GroupBy(p => p.CategoryId)
+            .Select(g => new
             {
-                p.Product?.Category?.Name,
-                Count = p.Product?.CategoryId
+                CategoryName = g.FirstOrDefault(c => c.Category?.Id == g.Key)?.Category?.Name,
+                Count = g.SelectMany(op => op.OrderProducts).Distinct().Count()
             })
-            .GroupBy(p => p.Count);
+            .ToArray();
+
+        foreach (var x in categoryProductCount)
+        {
+            Console.WriteLine("Категория: ({0}), товаров куплено: ({1})", x.CategoryName, x.Count);
+        }
+
+        Console.WriteLine();
     }
 
     static void Main(string[] args)
