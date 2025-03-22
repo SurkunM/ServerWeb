@@ -1,8 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using ShopEF.Model;
-using System.Data.Common;
-using System.Net.NetworkInformation;
 
 namespace ShopEF;
 
@@ -158,7 +156,7 @@ internal class ShopProgram
         Console.WriteLine("Продукт удален");
     }
 
-    static private void SendLinqQueries(ShopDbContext shopDb)
+    static private void SetLinqQueries(ShopDbContext shopDb)
     {
         var orderProductsArray = shopDb.OrderProducts
             .Include(op => op.Product)
@@ -208,8 +206,8 @@ internal class ShopProgram
             .GroupBy(p => p.CategoryId)
             .Select(g => new
             {
-                CategoryName = g.FirstOrDefault(c => c.Category?.Id == g.Key)?.Category?.Name,
-                Count = g.SelectMany(op => op.OrderProducts).Distinct().Count()
+                CategoryName = g.FirstOrDefault(p => p.Category?.Id == g.Key)?.Category?.Name,
+                Count = g.SelectMany(p => p.OrderProducts).Distinct().Count()
             })
             .ToArray();
 
@@ -217,8 +215,6 @@ internal class ShopProgram
         {
             Console.WriteLine("Категория: ({0}), товаров куплено: ({1})", x.CategoryName, x.Count);
         }
-
-        Console.WriteLine();
     }
 
     static void Main(string[] args)
@@ -227,7 +223,6 @@ internal class ShopProgram
         {
             using var shopDb = new ShopDbContext();
 
-            shopDb.Database.EnsureDeleted();
             shopDb.Database.EnsureCreated();
 
             AddContext(shopDb);
@@ -235,7 +230,7 @@ internal class ShopProgram
             UpdateProductPrice(shopDb, "Вода", 20);
             DeleteProduct(shopDb, "Вода");
 
-            SendLinqQueries(shopDb);
+            SetLinqQueries(shopDb);
         }
         catch (SqlException)
         {
