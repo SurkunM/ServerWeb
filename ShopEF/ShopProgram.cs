@@ -3,8 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ShopEF.Model;
 
 namespace ShopEF;
-
-internal class ShopProgram
+public class ShopProgram
 {
     static private Product CrateProduct(Category category, string name, decimal price)
     {
