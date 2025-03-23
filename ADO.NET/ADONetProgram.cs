@@ -130,7 +130,7 @@ internal class ADONetProgram
 
     public static void Main(string[] args)
     {
-        var connectionString = "Server=.;Initial Catalog=Shop;Integrated Security=true;TrustServerCertificate=True;";//Скрипт:
+        var connectionString = "Server=.;Initial Catalog=Shop;Integrated Security=true;TrustServerCertificate=True;";
 
         try
         {
