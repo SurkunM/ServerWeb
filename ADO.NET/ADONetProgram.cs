@@ -5,16 +5,17 @@ namespace ADO.NET;
 
 internal class ADONetProgram
 {
-    static private int GetProductsCount(SqlConnection connection)
+    private static int GetProductsCount(SqlConnection connection)
     {
-        var sql = $"SELECT COUNT(*) FROM Product";
+        var sql = "SELECT COUNT(*) " +
+            "FROM Product";
 
         using var command = new SqlCommand(sql, connection);
 
         return (int)command.ExecuteScalar();
     }
 
-    static private void PrintDataReaderProductsAndCategoryNames(SqlConnection connection)
+    private static void PrintDataReaderProductsAndCategoryNames(SqlConnection connection)
     {
         var sql = "SELECT p.Id, p.Name, p.Price, c.Name " +
             "FROM Product p " +
@@ -30,9 +31,9 @@ internal class ADONetProgram
         }
     }
 
-    static private void PrintDataSetProductsAndCategoryNames(SqlConnection connection)
+    private static void PrintDataSetProductsAndCategoryNames(SqlConnection connection)
     {
-        var sql = "SELECT p.Id AS Id, p.Name AS Name, p.Price AS Price, c.Name AS CategoryName " +
+        var sql = "SELECT p.Id, p.Name, p.Price, c.Name AS CategoryName " +
             "FROM Product p " +
             "INNER JOIN Category c " +
                 "ON p.CategoryId = c.Id";
@@ -51,7 +52,7 @@ internal class ADONetProgram
         }
     }
 
-    static private void CreateProduct(SqlConnection connection, string name, int categoryId, decimal price)
+    private static void CreateProduct(SqlConnection connection, string name, int categoryId, decimal price)
     {
         var sql = "INSERT INTO Product(Name, CategoryId, Price) " +
             "VALUES (@productName, @productCategoryId, @productPrice)";
@@ -76,9 +77,9 @@ internal class ADONetProgram
         command.ExecuteNonQuery();
     }
 
-    static private void DeleteProduct(SqlConnection connection, string productName)
+    private static void DeleteProduct(SqlConnection connection, string productName)
     {
-        var sql = $"DELETE TOP(1) FROM Product " +
+        var sql = "DELETE FROM Product " +
             "WHERE Name = @productName";
 
         using var command = new SqlCommand(sql, connection);
@@ -91,7 +92,7 @@ internal class ADONetProgram
         command.ExecuteNonQuery();
     }
 
-    static private void CreateCategory(SqlConnection connection, string categoryName)
+    private static void CreateCategory(SqlConnection connection, string categoryName)
     {
         var sql = "INSERT INTO Category(Name) " +
             "VALUES (@categoryName)";
@@ -106,7 +107,7 @@ internal class ADONetProgram
         command.ExecuteNonQuery();
     }
 
-    static private void EditProductPrice(SqlConnection connection, string productName, decimal price)
+    private static void EditProductPrice(SqlConnection connection, string productName, decimal price)
     {
         var sql = "UPDATE Product " +
             "SET Price = @price " +
@@ -127,36 +128,45 @@ internal class ADONetProgram
         command.ExecuteNonQuery();
     }
 
-    static void Main(string[] args)
+    public static void Main(string[] args)
     {
-        var connectionString = @"Server=.;Initial Catalog=Shop;Integrated Security=true;TrustServerCertificate=True;";
+        var connectionString = "Server=.;Initial Catalog=Shop;Integrated Security=true;TrustServerCertificate=True;";//Скрипт:
 
         try
         {
             using var connection = new SqlConnection(connectionString);
             connection.Open();
 
-            var productCount = GetProductsCount(connection);
-            Console.WriteLine("Количество продуктов: {0}", productCount);
-
             CreateCategory(connection, "Молочные продукты");
-            CreateProduct(connection, "Груша", 1, 32);
+            CreateCategory(connection, "Напитки");
+            CreateCategory(connection, "Фрукты");
+
+            CreateProduct(connection, "Молоко", 1, 20);
+            CreateProduct(connection, "Вода", 2, 5);
+            CreateProduct(connection, "Яблоко", 3, 22);
+            CreateProduct(connection, "Груша", 3, 32);
 
             EditProductPrice(connection, "Яблоко", 55);
             DeleteProduct(connection, "Груша");
+
+            Console.WriteLine("Количество продуктов: {0}", GetProductsCount(connection));
 
             PrintDataReaderProductsAndCategoryNames(connection);
             Console.WriteLine();
 
             PrintDataSetProductsAndCategoryNames(connection);
         }
-        catch (SqlException)
+        catch (SqlException e)
         {
-            Console.WriteLine("Выполнился не корректный запрос к БД или произошла ошибка соединения с БД.");
+            Console.WriteLine($"Выполнился некорректный запрос к БД или произошла ошибка соединения с БД. {e}");
         }
-        catch (InvalidOperationException)
+        catch (InvalidOperationException e)
         {
-            Console.WriteLine("Ошибка прав доступа к БД или данное БД сейчас используется другим пользователем.");
+            Console.WriteLine($"Ошибка прав доступа к БД или данная БД сейчас используется другим пользователем. {e}");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Произошла ошибка: {e}");
         }
     }
 }
