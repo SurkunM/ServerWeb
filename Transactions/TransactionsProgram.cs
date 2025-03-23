@@ -1,63 +1,84 @@
 ﻿using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace Transactions;
 
 internal class TransactionsProgram
 {
-    static private void CreateCategoryUsingTransaction(SqlConnection connection)
+    private static void CreateCategoryUsingTransaction(SqlConnection connection, string categoryName)
     {
-        var transaction = connection.BeginTransaction();
+        using var transaction = connection.BeginTransaction();
 
         try
         {
-            var sql1 = "INSERT INTO Category(Name) " +
-                "VALUES(N'Зерновые')";
+            var categoryCreateSql = @"
+            INSERT INTO Category(Name)
+            VALUES (@categoryName);
+            ";
 
-            using var command = new SqlCommand(sql1, connection);
+            using var command = new SqlCommand(categoryCreateSql, connection);
+
+            command.Parameters.Add(new SqlParameter("@categoryName", SqlDbType.NVarChar)
+            {
+                Value = categoryName
+            });
 
             command.Transaction = transaction;
             command.ExecuteNonQuery();
 
             throw new Exception();
+
+            transaction.Commit();
         }
         catch (Exception)
         {
             transaction.Rollback();
-            Console.WriteLine("Транзакция прервана! Произошла ошибка при создания новой 'категории'");
+            throw;
         }
     }
 
-    static private void CreateCategoryWithoutUsingTransaction(SqlConnection connection)
+    private static void CreateCategoryWithoutTransaction(SqlConnection connection, string categoryName)
     {
-        var sql1 = "INSERT INTO Category(Name) " +
-            "VALUES(N'Морепродукты')";
+        var categoryCreateSql = @"
+        INSERT INTO Category(Name) 
+        VALUES (@categoryName);
+        ";
 
-        using var command = new SqlCommand(sql1, connection);
+        using var command = new SqlCommand(categoryCreateSql, connection);
+
+        command.Parameters.Add(new SqlParameter("@categoryName", SqlDbType.NVarChar)
+        {
+            Value = categoryName
+        });
 
         command.ExecuteNonQuery();
 
         throw new Exception();
     }
 
-    static void Main(string[] args)
+    public static void Main(string[] args)
     {
-        var connectionString = @"Server=.;Initial Catalog=Shop;Integrated Security=true;TrustServerCertificate=True;";
+        var connectionString = "Server=.;Initial Catalog=Shop;Integrated Security=true;TrustServerCertificate=True;";
 
         try
         {
             using var connection = new SqlConnection(connectionString);
             connection.Open();
 
-            CreateCategoryUsingTransaction(connection);
-            CreateCategoryWithoutUsingTransaction(connection);
+            CreateCategoryUsingTransaction(connection, "Хоз.товары");
+            CreateCategoryWithoutTransaction(connection, "Морепродукты");
         }
-        catch (SqlException)
+        catch (SqlException e)
         {
-            Console.WriteLine("Выполнился не корректный запрос к БД или произошла ошибка соединения с БД.");
+            Console.WriteLine($"Выполнился некорректный запрос к БД или произошла ошибка соединения с БД. {e}");
         }
-        catch (InvalidOperationException)
+        catch (InvalidOperationException e)
         {
-            Console.WriteLine("Ошибка прав доступа к БД или данное БД сейчас используется другим пользователем.");
+            Console.WriteLine($"Ошибка прав доступа к БД или данная БД сейчас используется другим пользователем. {e}");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Транзакция прервана! Произошла ошибка: {e}");
         }
     }
 }
