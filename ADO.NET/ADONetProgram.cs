@@ -7,8 +7,10 @@ internal class ADONetProgram
 {
     private static int GetProductsCount(SqlConnection connection)
     {
-        var sql = "SELECT COUNT(*) " +
-            "FROM Product";
+        var sql = @"
+        SELECT COUNT(*) 
+        FROM Product;
+        ";
 
         using var command = new SqlCommand(sql, connection);
 
@@ -17,10 +19,12 @@ internal class ADONetProgram
 
     private static void PrintDataReaderProductsAndCategoryNames(SqlConnection connection)
     {
-        var sql = "SELECT p.Id, p.Name, p.Price, c.Name " +
-            "FROM Product p " +
-            "INNER JOIN Category c " +
-                "ON p.CategoryId = c.Id";
+        var sql = @"
+        SELECT p.Id, p.Name, p.Price, c.Name 
+        FROM Product p 
+        INNER JOIN Category c 
+            ON p.CategoryId = c.Id;
+        ";
 
         using var command = new SqlCommand(sql, connection);
         using var reader = command.ExecuteReader();
@@ -33,10 +37,12 @@ internal class ADONetProgram
 
     private static void PrintDataSetProductsAndCategoryNames(SqlConnection connection)
     {
-        var sql = "SELECT p.Id, p.Name, p.Price, c.Name AS CategoryName " +
-            "FROM Product p " +
-            "INNER JOIN Category c " +
-                "ON p.CategoryId = c.Id";
+        var sql = @"
+        SELECT p.Id, p.Name, p.Price, c.Name AS CategoryName
+        FROM Product p 
+        INNER JOIN Category c 
+            ON p.CategoryId = c.Id;
+        ";
 
         var dataSet = new DataSet();
 
@@ -54,8 +60,10 @@ internal class ADONetProgram
 
     private static void CreateProduct(SqlConnection connection, string name, int categoryId, decimal price)
     {
-        var sql = "INSERT INTO Product(Name, CategoryId, Price) " +
-            "VALUES (@productName, @productCategoryId, @productPrice)";
+        var sql = @"
+        INSERT INTO Product(Name, CategoryId, Price) 
+        VALUES (@productName, @productCategoryId, @productPrice);
+        ";
 
         using var command = new SqlCommand(sql, connection);
 
@@ -79,8 +87,10 @@ internal class ADONetProgram
 
     private static void DeleteProduct(SqlConnection connection, string productName)
     {
-        var sql = "DELETE FROM Product " +
-            "WHERE Name = @productName";
+        var sql = @"
+        DELETE FROM Product 
+        WHERE Name = @productName;
+        ";
 
         using var command = new SqlCommand(sql, connection);
 
@@ -94,8 +104,10 @@ internal class ADONetProgram
 
     private static void CreateCategory(SqlConnection connection, string categoryName)
     {
-        var sql = "INSERT INTO Category(Name) " +
-            "VALUES (@categoryName)";
+        var sql = @"
+        INSERT INTO Category(Name) 
+        VALUES (@categoryName);
+        ";
 
         using var command = new SqlCommand(sql, connection);
 
@@ -109,9 +121,11 @@ internal class ADONetProgram
 
     private static void EditProductPrice(SqlConnection connection, string productName, decimal price)
     {
-        var sql = "UPDATE Product " +
-            "SET Price = @price " +
-            "WHERE Name = @productName";
+        var sql = @"
+        UPDATE Product 
+        SET Price = @price 
+        WHERE Name = @productName;
+        ";
 
         using var command = new SqlCommand(sql, connection);
 
@@ -146,7 +160,7 @@ internal class ADONetProgram
             CreateProduct(connection, "Яблоко", 3, 22);
             CreateProduct(connection, "Груша", 3, 32);
 
-            EditProductPrice(connection, "Яблоко", 55);
+            EditProductPrice(connection, "Яблоко", 65);
             DeleteProduct(connection, "Груша");
 
             Console.WriteLine("Количество продуктов: {0}", GetProductsCount(connection));
