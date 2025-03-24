@@ -3,7 +3,7 @@ using ShopEF.Model;
 
 namespace ShopEF;
 
-class ShopDbContext : DbContext
+public class ShopDbContext : DbContext
 {
     public DbSet<Product> Products { get; set; }
 
@@ -18,7 +18,7 @@ class ShopDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder
-            .UseLazyLoadingProxies()            
+            .UseLazyLoadingProxies()
             .UseSqlServer("Server=.;Database=Shop;Integrated Security=True;MultipleActiveResultSets=true;TrustServerCertificate=True;");
     }
 
@@ -36,8 +36,7 @@ class ShopDbContext : DbContext
                 .HasMaxLength(100);
 
             b.Property(p => p.Price)
-                .HasColumnType("decimal(18, 2)")
-                .IsRequired(false);
+                .HasColumnType("decimal(18, 2)");
 
             b.HasOne(c => c.Category)
                 .WithMany(c => c.Products)
@@ -66,13 +65,13 @@ class ShopDbContext : DbContext
             b.Property(b => b.Email)
                 .IsRequired()
                 .HasMaxLength(100);
+
+            b.Property(b => b.BirthDate).IsRequired();
         });
 
         modelBuilder.Entity<Order>(b =>
         {
-            b.Property(o => o.OrderDate)
-                .HasColumnType("DATETIME2")
-                .IsRequired(false);
+            b.Property(o => o.OrderDate).IsRequired();
 
             b.HasOne(c => c.Buyer)
                 .WithMany(c => c.Orders)

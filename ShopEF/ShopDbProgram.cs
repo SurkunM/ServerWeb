@@ -1,11 +1,13 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using ShopEF.Model;
 
 namespace ShopEF;
-public class ShopProgram
+
+public class ShopDbProgram
 {
-    static private Product CrateProduct(Category category, string name, decimal price)
+    private static Product CrateProduct(Category category, string name, decimal price)
     {
         var product = new Product
         {
@@ -17,7 +19,7 @@ public class ShopProgram
         return product;
     }
 
-    static private Buyer CreateBuyer(string firstName, string lastName, string middleName, string email, string phone)
+    private static Buyer CreateBuyer(string firstName, string lastName, string middleName, string email, string phone)
     {
         var buyer = new Buyer
         {
@@ -31,7 +33,7 @@ public class ShopProgram
         return buyer;
     }
 
-    static private OrderProduct CreateOrderProducts(Order order, Product product)
+    private static OrderProduct CreateOrderProducts(Order order, Product product)
     {
         var orderProduct = new OrderProduct
         {
@@ -42,7 +44,7 @@ public class ShopProgram
         return orderProduct;
     }
 
-    static private void AddContext(ShopDbContext shopDb)
+    private static void AddContext(ShopDbContext shopDb)
     {
         var category1 = new Category
         {
@@ -88,13 +90,13 @@ public class ShopProgram
 
         var orderProducts1 = CreateOrderProducts(order1, product3);
         var orderProducts2 = CreateOrderProducts(order1, product2);
-        var orderProducts6 = CreateOrderProducts(order1, product2);
+        var orderProducts3 = CreateOrderProducts(order1, product2);
 
         order1.OrderProducts = new List<OrderProduct>
         {
             orderProducts1,
             orderProducts2,
-            orderProducts6
+            orderProducts3
         };
 
         var order2 = new Order
@@ -103,16 +105,16 @@ public class ShopProgram
             OrderDate = new DateTime(2025, 3, 14, 10, 00, 48),
         };
 
-        var orderProducts3 = CreateOrderProducts(order2, product3);
         var orderProducts4 = CreateOrderProducts(order2, product2);
         var orderProducts5 = CreateOrderProducts(order2, product1);
+        var orderProducts6 = CreateOrderProducts(order2, product3);
 
 
         order2.OrderProducts = new List<OrderProduct>
         {
-            orderProducts3,
             orderProducts4,
-            orderProducts5
+            orderProducts5,
+            orderProducts6
         };
 
         shopDb.Orders.Add(order1);
@@ -121,7 +123,7 @@ public class ShopProgram
         shopDb.SaveChanges();
     }
 
-    static private void UpdateProductPrice(ShopDbContext shopDb, string name, decimal price)
+    private static void UpdateProductPrice(ShopDbContext shopDb, string name, decimal price)
     {
         var product = shopDb.Products.FirstOrDefault(p => p.Name == name);
 
@@ -138,7 +140,7 @@ public class ShopProgram
         Console.WriteLine("Цена изменена");
     }
 
-    static private void DeleteProduct(ShopDbContext shopDb, string name)
+    private static void DeleteProduct(ShopDbContext shopDb, string name)
     {
         var product = shopDb.Products.FirstOrDefault(p => p.Name == name);
 
@@ -155,7 +157,7 @@ public class ShopProgram
         Console.WriteLine("Продукт удален");
     }
 
-    static private void SetLinqQueries(ShopDbContext shopDb)
+    private static void SetLinqQueries(ShopDbContext shopDb)
     {
         var orderProductsArray = shopDb.OrderProducts
             .Include(op => op.Product)
@@ -180,7 +182,7 @@ public class ShopProgram
             Console.WriteLine("Самый часто покупаемый товар: {0}", mostPurchasedProduct.Name is null ? "\"не найден\"" : mostPurchasedProduct.Name);
         }
 
-        var clientsSpentMoneyDictionary = orderProductsArray
+        var buyersSpentMoneyDictionary = orderProductsArray
             .Select(p => new
             {
                 p.Order!.BuyerId,
@@ -190,16 +192,15 @@ public class ShopProgram
             .GroupBy(p => p.BuyerId)
             .ToDictionary(p => p.Key, p => p.Sum(p1 => p1.Price));
 
-        foreach (var clientId in clientsSpentMoneyDictionary)
+        foreach (var buyer in buyersSpentMoneyDictionary)
         {
-            Console.WriteLine("Покупатель {0}, сумма заказа {1}", clientId.Key, clientId.Value);
+            Console.WriteLine("Покупатель {0}, сумма заказа {1}", buyer.Key, buyer.Value);
         }
 
         var productsCollection = shopDb.Products
             .Include(c => c.OrderProducts)
             .Include(c => c.Category)
             .ToArray();
-
 
         var categoryProductCount = productsCollection
             .GroupBy(p => p.CategoryId)
@@ -216,14 +217,15 @@ public class ShopProgram
         }
     }
 
-    static void Main(string[] args)
+    public static void Main(string[] args)
     {
         try
         {
-            using var shopDb = new ShopDbContext();
+            using var shopDb = new ShopDbContext();//TODO:Сделать метод добавления ДР у Buyer. Сейчас дефолтное добавление! Попробовать изменить формат даты
 
+            shopDb.Database.EnsureDeleted();
+            shopDb.Database.Migrate();
             shopDb.Database.EnsureCreated();
-
             AddContext(shopDb);
 
             UpdateProductPrice(shopDb, "Вода", 20);
@@ -231,13 +233,17 @@ public class ShopProgram
 
             SetLinqQueries(shopDb);
         }
-        catch (SqlException)
+        catch (SqlException e)
         {
-            Console.WriteLine("Выполнился не корректный запрос к БД или произошла ошибка соединения с БД.");
+            Console.WriteLine($"Выполнился некорректный запрос к БД или произошла ошибка соединения с БД. {e}");
         }
-        catch (InvalidOperationException)
+        catch (InvalidOperationException e)
         {
-            Console.WriteLine("Ошибка прав доступа к БД или данное БД сейчас используется другим пользователем.");
+            Console.WriteLine($"Ошибка прав доступа к БД или данная БД сейчас используется другим пользователем. {e}");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Произошла ошибка: {e}");
         }
     }
 }

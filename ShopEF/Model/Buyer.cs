@@ -12,7 +12,9 @@ public class Buyer
 
     public string? Phone { get; set; }
 
-    public string? Email { get; set; }    
+    public string? Email { get; set; }
+
+    public DateTime BirthDate { get; set; }
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }
