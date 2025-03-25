@@ -1,6 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations;
 using ShopEF.Model;
 
 namespace ShopEF;
@@ -221,11 +220,10 @@ public class ShopDbProgram
     {
         try
         {
-            using var shopDb = new ShopDbContext();//TODO:Сделать метод добавления ДР у Buyer. Сейчас дефолтное добавление! Попробовать изменить формат даты
+            using var shopDb = new ShopDbContext();
 
-            shopDb.Database.EnsureDeleted();
             shopDb.Database.Migrate();
-            shopDb.Database.EnsureCreated();
+
             AddContext(shopDb);
 
             UpdateProductPrice(shopDb, "Вода", 20);

@@ -15,8 +15,19 @@ namespace ShopEF.Migrations
                 name: "BirthDate",
                 table: "Buyers",
                 type: "datetime2",
+                nullable: true);
+
+            migrationBuilder.Sql("UPDATE Buyers SET BirthDate = '1990-03-01' WHERE Id = 1");
+            migrationBuilder.Sql("UPDATE Buyers SET BirthDate = '1987-12-10' WHERE Id = 2");
+
+            migrationBuilder.AlterColumn<DateTime>(
+                name: "BirthDate",
+                table: "Buyers",
+                type: "datetime2",
                 nullable: false,
-                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+                oldClrType: typeof(DateTime),
+                oldType: "datetime2",
+                oldNullable: true);
         }
 
         /// <inheritdoc />
