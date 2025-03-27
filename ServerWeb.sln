@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CountriesJson", "CountriesJ
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Excel", "Excel\Excel.csproj", "{586E10EB-8A9E-4BF7-A63F-CDBEB55B078F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Новая папка1", "Новая папка1", "{36D591C7-65C7-A0D1-1CBC-10CDE441BDC8}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestVector", "UnitTestVector\UnitTestVector.csproj", "{E95A6013-9B8B-4A33-9AB5-30FB70359CD5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VectorTask", "VectorTask\VectorTask.csproj", "{10EA0317-1810-C224-4F8C-2801D9726A53}"
@@ -23,7 +21,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transactions", "Transaction
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShopEF", "ShopEF\ShopEF.csproj", "{1B55F808-1E6E-4AD8-805A-C435F84F1FA0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitOfWorkTask", "DataAccessPatterns\UnitOfWorkTask.csproj", "{848506E3-7C98-4D32-A1DB-4D54802413F2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitOfWorkTask", "UnitOfWorkTask\UnitOfWorkTask.csproj", "{C379B7BF-9B72-3C05-C6A4-CF630506DE85}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,10 +65,10 @@ Global
 		{1B55F808-1E6E-4AD8-805A-C435F84F1FA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B55F808-1E6E-4AD8-805A-C435F84F1FA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B55F808-1E6E-4AD8-805A-C435F84F1FA0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{848506E3-7C98-4D32-A1DB-4D54802413F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{848506E3-7C98-4D32-A1DB-4D54802413F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{848506E3-7C98-4D32-A1DB-4D54802413F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{848506E3-7C98-4D32-A1DB-4D54802413F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C379B7BF-9B72-3C05-C6A4-CF630506DE85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C379B7BF-9B72-3C05-C6A4-CF630506DE85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C379B7BF-9B72-3C05-C6A4-CF630506DE85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C379B7BF-9B72-3C05-C6A4-CF630506DE85}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
