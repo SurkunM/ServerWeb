@@ -91,7 +91,7 @@ internal class UnitOfWorkProgram
         var ordersRep = uow.GetRepository<IOrderRepository>();
         var buyersAndSpentMoneySumDictionary = ordersRep?.GetBuyersAndSpentMoneySumDictionary();
 
-        if (buyersAndSpentMoneySumDictionary is null)
+        if (buyersAndSpentMoneySumDictionary is null || buyersAndSpentMoneySumDictionary.Count == 0)
         {
             Console.WriteLine("Список покупок пуст");
         }
@@ -106,7 +106,7 @@ internal class UnitOfWorkProgram
         var categoryRep = uow.GetRepository<ICategoryRepository>();
         var categoryAndPurchasedProductsCountDictionary = categoryRep?.GetCategoryAndPurchasedProductsCountDictionary();
 
-        if (categoryAndPurchasedProductsCountDictionary is null)
+        if (categoryAndPurchasedProductsCountDictionary is null || categoryAndPurchasedProductsCountDictionary.Count == 0)
         {
             Console.WriteLine("Коллекция пуста");
         }
