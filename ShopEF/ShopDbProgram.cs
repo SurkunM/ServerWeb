@@ -158,61 +158,65 @@ public class ShopDbProgram
 
     private static void SetLinqQueries(ShopDbContext shopDb)
     {
-        var orderProductsArray = shopDb.OrderProducts
-            .Include(op => op.Product)
+        var productsArray = shopDb.Products
+            .Include(op => op.OrderProducts)
             .ToArray();
 
-        var mostPurchasedProduct = orderProductsArray
-            .GroupBy(p => p.ProductId)
-            .Select(p => new
-            {
-                p.FirstOrDefault(p1 => p1.ProductId == p.Key)?.Product?.Name,
-                Count = p.Count()
-            })
-            .OrderByDescending(p => p.Count)
-            .FirstOrDefault();
+        var mostPurchasedProduct = productsArray
+            .OrderByDescending(p => p.OrderProducts.Count)
+            .FirstOrDefault(); ;
 
         if (mostPurchasedProduct is null)
         {
-            Console.WriteLine("Список товаров пусть");
+            Console.WriteLine("Список товаров пуст");
         }
         else
         {
-            Console.WriteLine("Самый часто покупаемый товар: {0}", mostPurchasedProduct.Name is null ? "\"не найден\"" : mostPurchasedProduct.Name);
+            Console.WriteLine("Самый часто покупаемый товар: {0}", mostPurchasedProduct.Name);
         }
 
-        var buyersSpentMoneyDictionary = orderProductsArray
-            .Select(p => new
+        var ordersArray = shopDb.Orders
+            .Include(o => o.OrderProducts)
+            .ToArray();
+
+        var buyersAndSpentMoneySumDictionary = ordersArray
+            .Select(o => new
             {
-                p.Order!.BuyerId,
-                p.Product?.Price,
-
+                Id = o.BuyerId,
+                Sum = o.OrderProducts.Sum(op => op.Product!.Price)
             })
-            .GroupBy(p => p.BuyerId)
-            .ToDictionary(p => p.Key, p => p.Sum(p1 => p1.Price));
+            .ToDictionary(b => b.Id, b => b.Sum);
 
-        foreach (var buyer in buyersSpentMoneyDictionary)
+        if (buyersAndSpentMoneySumDictionary.Count == 0)
         {
-            Console.WriteLine("Покупатель {0}, сумма заказа {1}", buyer.Key, buyer.Value);
+            Console.WriteLine("Коллекция пуста");
+        }
+        else
+        {
+            foreach (var buyer in buyersAndSpentMoneySumDictionary)
+            {
+                Console.WriteLine("Покупатель {0}, сумма заказа {1}", buyer.Key, buyer.Value);
+            }
         }
 
-        var productsCollection = shopDb.Products
-            .Include(c => c.OrderProducts)
-            .Include(c => c.Category)
+        var categoriesArray = shopDb.Categories
+            .Include(p => p.Products)
+                .ThenInclude(p => p.OrderProducts)
             .ToArray();
 
-        var categoryProductCount = productsCollection
-            .GroupBy(p => p.CategoryId)
-            .Select(g => new
-            {
-                CategoryName = g.FirstOrDefault(p => p.Category?.Id == g.Key)?.Category?.Name,
-                Count = g.SelectMany(p => p.OrderProducts).Distinct().Count()
-            })
-            .ToArray();
+        var categoryAndPurchasedProductsCountDictionary = categoriesArray
+            .ToDictionary(c => c, c => c.Products.Sum(p => p.OrderProducts.Count));
 
-        foreach (var x in categoryProductCount)
+        if (categoryAndPurchasedProductsCountDictionary.Count == 0)
         {
-            Console.WriteLine("Категория: ({0}), товаров куплено: ({1})", x.CategoryName, x.Count);
+            Console.WriteLine("Коллекция пуста");
+        }
+        else
+        {
+            foreach (var category in categoryAndPurchasedProductsCountDictionary)
+            {
+                Console.WriteLine("Категория: {0}, товаров куплено: {1}", category.Key.Name, category.Value);
+            }
         }
     }
 
