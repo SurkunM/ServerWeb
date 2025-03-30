@@ -11,10 +11,10 @@ internal class TransactionsProgram
 
         try
         {
-            var categoryCreateSql = @"
+            var categoryCreateSql = """
             INSERT INTO Category(Name)
             VALUES (@categoryName);
-            ";
+            """;
 
             using var command = new SqlCommand(categoryCreateSql, connection);
 
@@ -33,16 +33,15 @@ internal class TransactionsProgram
         catch (Exception)
         {
             transaction.Rollback();
-            throw;
         }
     }
 
     private static void CreateCategoryWithoutTransaction(SqlConnection connection, string categoryName)
     {
-        var categoryCreateSql = @"
+        var categoryCreateSql = """
         INSERT INTO Category(Name) 
         VALUES (@categoryName);
-        ";
+        """;
 
         using var command = new SqlCommand(categoryCreateSql, connection);
 
