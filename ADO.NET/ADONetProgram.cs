@@ -7,10 +7,10 @@ internal class ADONetProgram
 {
     private static int GetProductsCount(SqlConnection connection)
     {
-        var sql = @"
+        var sql = """
         SELECT COUNT(*) 
         FROM Product;
-        ";
+        """;
 
         using var command = new SqlCommand(sql, connection);
 
@@ -19,12 +19,12 @@ internal class ADONetProgram
 
     private static void PrintDataReaderProductsAndCategoryNames(SqlConnection connection)
     {
-        var sql = @"
+        var sql = """
         SELECT p.Id, p.Name, p.Price, c.Name 
         FROM Product p 
         INNER JOIN Category c 
             ON p.CategoryId = c.Id;
-        ";
+        """;r
 
         using var command = new SqlCommand(sql, connection);
         using var reader = command.ExecuteReader();
@@ -37,12 +37,12 @@ internal class ADONetProgram
 
     private static void PrintDataSetProductsAndCategoryNames(SqlConnection connection)
     {
-        var sql = @"
+        var sql = """
         SELECT p.Id, p.Name, p.Price, c.Name AS CategoryName
         FROM Product p 
         INNER JOIN Category c 
             ON p.CategoryId = c.Id;
-        ";
+        """;
 
         var dataSet = new DataSet();
 
@@ -60,10 +60,10 @@ internal class ADONetProgram
 
     private static void CreateProduct(SqlConnection connection, string name, int categoryId, decimal price)
     {
-        var sql = @"
+        var sql = """
         INSERT INTO Product(Name, CategoryId, Price) 
         VALUES (@productName, @productCategoryId, @productPrice);
-        ";
+        """;
 
         using var command = new SqlCommand(sql, connection);
 
@@ -87,10 +87,10 @@ internal class ADONetProgram
 
     private static void DeleteProduct(SqlConnection connection, string productName)
     {
-        var sql = @"
+        var sql = """
         DELETE FROM Product 
         WHERE Name = @productName;
-        ";
+        """;
 
         using var command = new SqlCommand(sql, connection);
 
@@ -104,10 +104,10 @@ internal class ADONetProgram
 
     private static void CreateCategory(SqlConnection connection, string categoryName)
     {
-        var sql = @"
+        var sql = """
         INSERT INTO Category(Name) 
         VALUES (@categoryName);
-        ";
+        """;
 
         using var command = new SqlCommand(sql, connection);
 
@@ -121,11 +121,11 @@ internal class ADONetProgram
 
     private static void EditProductPrice(SqlConnection connection, string productName, decimal price)
     {
-        var sql = @"
+        var sql = """
         UPDATE Product 
         SET Price = @price 
         WHERE Name = @productName;
-        ";
+        """;
 
         using var command = new SqlCommand(sql, connection);
 
