@@ -24,7 +24,7 @@ internal class ADONetProgram
         FROM Product p 
         INNER JOIN Category c 
             ON p.CategoryId = c.Id;
-        """;r
+        """;
 
         using var command = new SqlCommand(sql, connection);
         using var reader = command.ExecuteReader();
