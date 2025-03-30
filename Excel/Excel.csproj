@@ -8,11 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ClosedXML" Version="0.104.2" />
+    <Compile Remove="ExcelFiles\**" />
+    <EmbeddedResource Remove="ExcelFiles\**" />
+    <None Remove="ExcelFiles\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ExcelFiles\" />
+    <PackageReference Include="ClosedXML" Version="0.104.2" />
   </ItemGroup>
 
 </Project>

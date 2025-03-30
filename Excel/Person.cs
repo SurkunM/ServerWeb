@@ -8,9 +8,9 @@ public class Person
 
     public int Age { get; }
 
-    public int Phone { get; }
+    public string Phone { get; }
 
-    public Person(string firstName, string lastName, int age, int phone)
+    public Person(string firstName, string lastName, int age, string phone)
     {
         if (firstName is null)
         {
@@ -24,12 +24,12 @@ public class Person
 
         if (age <= 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(age), "Возраст не может быть отрицательным числом");
+            throw new ArgumentOutOfRangeException(nameof(age), "Возраст не может быть меньше или равно нулю");
         }
 
-        if (phone <= 0 || phone >= 100000)
+        if (phone.Length <= 0 || phone.Length >= 100000)
         {
-            throw new ArgumentOutOfRangeException(nameof(age), "Номер телефона не должен быть меньше или равно 0, или больше 100 000");
+            throw new ArgumentOutOfRangeException(nameof(phone), "Длина номера телефона не должна быть меньше или равной 0, или больше 6 значений");
         }
 
         Age = age;

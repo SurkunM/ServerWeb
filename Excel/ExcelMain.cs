@@ -19,13 +19,13 @@ internal class ExcelMain
         worksheet.Cell("A1").SetValue("Сотрудники");
         worksheet.Cell("A1").Style.Font.FontSize = 12;
         worksheet.Cell("A1").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-        worksheet.Columns().AdjustToContents();
 
         var table = worksheet.Cell("A2").InsertTable(personsList, "Сотрудники");
 
         table.ShowAutoFilter = false;
         table.Theme = XLTableTheme.TableStyleMedium5;
 
+        worksheet.Columns().AdjustToContents();
         workbook.SaveAs("..\\..\\..\\ExcelFiles\\result.xlsx");
     }
 
@@ -33,12 +33,12 @@ internal class ExcelMain
     {
         var personsList = new List<Person>
         {
-            new ("Иван", "Иванов", 44, 23001),
-            new ("Николай", "Абрамов", 35, 23011),
-            new ("Василий", "Степанов", 22, 23002),
-            new ("Петр", "Степанов", 25, 23004),
-            new ("Анна", "Абрамова", 31, 23012),
-            new ("Ольга", "Степанова", 42, 23038)
+            new ("Иван", "Иванов", 44, "23001"),
+            new ("Николай", "Абрамов", 35, "23011"),
+            new ("Василий", "Степанов", 22, "23002"),
+            new ("Петр", "Степанов", 25, "23004"),
+            new ("Анна", "Абрамова", 31, "23012"),
+            new ("Ольга", "Степанова", 42, "23038")
         };
 
         try
