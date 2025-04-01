@@ -12,9 +12,9 @@ internal class TransactionsProgram
         try
         {
             var categoryCreateSql = """
-            INSERT INTO Category(Name)
-            VALUES (@categoryName);
-            """;
+                INSERT INTO Category(Name)
+                VALUES (@categoryName)               
+                """;
 
             using var command = new SqlCommand(categoryCreateSql, connection);
 
@@ -39,9 +39,9 @@ internal class TransactionsProgram
     private static void CreateCategoryWithoutTransaction(SqlConnection connection, string categoryName)
     {
         var categoryCreateSql = """
-        INSERT INTO Category(Name) 
-        VALUES (@categoryName);
-        """;
+            INSERT INTO Category(Name) 
+            VALUES (@categoryName)
+            """;
 
         using var command = new SqlCommand(categoryCreateSql, connection);
 
@@ -67,17 +67,17 @@ internal class TransactionsProgram
             CreateCategoryUsingTransaction(connection, "Хоз.товары");
             CreateCategoryWithoutTransaction(connection, "Морепродукты");
         }
-        catch (SqlException e)
+        catch (SqlException)
         {
-            Console.WriteLine($"Выполнился некорректный запрос к БД или произошла ошибка соединения с БД. {e}");
+            Console.WriteLine($"Выполнился некорректный запрос к БД или произошла ошибка соединения с БД.");
         }
-        catch (InvalidOperationException e)
+        catch (InvalidOperationException)
         {
-            Console.WriteLine($"Ошибка прав доступа к БД или данная БД сейчас используется другим пользователем. {e}");
+            Console.WriteLine($"Ошибка прав доступа к БД или данная БД сейчас используется другим пользователем.");
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            Console.WriteLine($"Транзакция прервана! Произошла ошибка: {e}");
+            Console.WriteLine($"Транзакция прервана! Произошла ошибка.");
         }
     }
 }
