@@ -12,24 +12,18 @@ public class Person
 
     public Person(string firstName, string lastName, int age, string phone)
     {
-        if (firstName is null)
-        {
-            throw new ArgumentNullException(nameof(firstName));
-        }
+        ArgumentNullException.ThrowIfNull(firstName);
 
-        if (lastName is null)
-        {
-            throw new ArgumentNullException(nameof(lastName));
-        }
+        ArgumentNullException.ThrowIfNull(lastName);
 
         if (age <= 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(age), "Возраст не может быть меньше или равно нулю");
+            throw new ArgumentOutOfRangeException(nameof(age), $"Возраст ({age}) не может быть меньше или равно нулю");
         }
 
-        if (phone.Length <= 0 || phone.Length >= 100000)
+        if (phone.Length <= 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(phone), "Длина номера телефона не должна быть меньше или равной 0, или больше 6 значений");
+            throw new ArgumentOutOfRangeException(nameof(phone), $"Длина номера телефона ({phone}) не должна быть меньше или равной 0");
         }
 
         Age = age;
