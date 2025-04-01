@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitOfWorkTask", "UnitOfWor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VectorTask.Tests", "VectorTask.Tests\VectorTask.Tests.csproj", "{72123AAD-70DC-45BC-BB70-94A3B2697F24}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CountriesJson", "CountriesJson\CountriesJson.csproj", "{8DE262CB-63C3-8FC1-8AA8-6B68DBBD6628}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{72123AAD-70DC-45BC-BB70-94A3B2697F24}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{72123AAD-70DC-45BC-BB70-94A3B2697F24}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{72123AAD-70DC-45BC-BB70-94A3B2697F24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DE262CB-63C3-8FC1-8AA8-6B68DBBD6628}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DE262CB-63C3-8FC1-8AA8-6B68DBBD6628}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DE262CB-63C3-8FC1-8AA8-6B68DBBD6628}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DE262CB-63C3-8FC1-8AA8-6B68DBBD6628}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,4 @@
-﻿namespace CountriesJson.Country;
+﻿namespace CountriesJson.Model;
 
 internal class Currency
 {
@@ -10,10 +10,6 @@ internal class Currency
 
     public override string ToString()
     {
-        return $"""            
-        "code": {Code},
-        "name": {Name},
-        "symbol": {Symbol}            
-        """;
+        return $"\"code\": \"{Code}\", \"name\": \"{Name}\", \"symbol\": \"{Symbol}\"";
     }
 }

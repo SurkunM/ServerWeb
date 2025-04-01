@@ -1,7 +1,7 @@
-﻿using CountriesJson.Country;
+﻿using CountriesJson.Model;
 using Newtonsoft.Json;
 
-namespace CountriesJSON;
+namespace CountriesJson;
 
 internal class CountriesJsonProgram
 {
@@ -22,7 +22,6 @@ internal class CountriesJsonProgram
         foreach (var currency in currenciesList)
         {
             Console.WriteLine(currency);
-            Console.WriteLine();
         }
     }
 
@@ -32,7 +31,7 @@ internal class CountriesJsonProgram
         {
             using var reader = new StreamReader(Path.Combine("..", "..", "..", "CountriesJson", "countries.json"));
 
-            string? countriesJson = reader.ReadToEnd();
+            var countriesJson = reader.ReadToEnd();
 
             var countries = JsonConvert.DeserializeObject<List<Country>>(countriesJson);
 
