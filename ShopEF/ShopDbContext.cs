@@ -5,15 +5,15 @@ namespace ShopEF;
 
 public class ShopDbContext : DbContext
 {
-    public DbSet<Product> Products { get; set; }
+    public virtual DbSet<Product> Products { get; set; }
 
-    public DbSet<Category> Categories { get; set; }
+    public virtual DbSet<Category> Categories { get; set; }
 
-    public DbSet<Order> Orders { get; set; }
+    public virtual DbSet<Order> Orders { get; set; }
 
-    public DbSet<Buyer> Buyers { get; set; }
+    public virtual DbSet<Customer> Customers { get; set; }
 
-    public DbSet<OrderProduct> OrderProducts { get; set; }
+    public virtual DbSet<OrderProduct> OrderProducts { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -26,13 +26,11 @@ public class ShopDbContext : DbContext
     {
         modelBuilder.Entity<Category>()
             .Property(c => c.Name)
-            .IsRequired()
             .HasMaxLength(100);
 
         modelBuilder.Entity<Product>(b =>
         {
             b.Property(p => p.Name)
-                .IsRequired()
                 .HasMaxLength(100);
 
             b.Property(p => p.Price)
@@ -44,38 +42,29 @@ public class ShopDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
-        modelBuilder.Entity<Buyer>(b =>
+        modelBuilder.Entity<Customer>(b =>
         {
             b.Property(b => b.FirstName)
-                .IsRequired()
                 .HasMaxLength(100);
 
             b.Property(b => b.LastName)
-                .IsRequired()
                 .HasMaxLength(100);
 
             b.Property(b => b.MiddleName)
-                .IsRequired()
                 .HasMaxLength(100);
 
             b.Property(b => b.Phone)
-                .IsRequired()
                 .HasMaxLength(100);
 
             b.Property(b => b.Email)
-                .IsRequired()
                 .HasMaxLength(100);
-
-            b.Property(b => b.BirthDate).IsRequired();
         });
 
         modelBuilder.Entity<Order>(b =>
         {
-            b.Property(o => o.OrderDate).IsRequired();
-
-            b.HasOne(c => c.Buyer)
+            b.HasOne(c => c.Customer)
                 .WithMany(c => c.Orders)
-                .HasForeignKey(c => c.BuyerId)
+                .HasForeignKey(c => c.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
 

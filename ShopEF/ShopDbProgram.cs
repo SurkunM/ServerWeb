@@ -6,21 +6,19 @@ namespace ShopEF;
 
 public class ShopDbProgram
 {
-    private static Product CrateProduct(Category category, string name, decimal price)
+    private static Product CreateProduct(Category category, string name, decimal price)
     {
-        var product = new Product
+        return new Product
         {
             Name = name,
             Price = price,
             Category = category
         };
-
-        return product;
     }
 
-    private static Buyer CreateBuyer(string firstName, string lastName, string middleName, string email, string phone)
+    private static Customer CreateCustomer(string firstName, string lastName, string middleName, string email, string phone)
     {
-        var buyer = new Buyer
+        return new Customer
         {
             FirstName = firstName,
             LastName = lastName,
@@ -28,30 +26,27 @@ public class ShopDbProgram
             Phone = phone,
             Email = email
         };
-
-        return buyer;
     }
 
-    private static OrderProduct CreateOrderProducts(Order order, Product product)
+    private static OrderProduct CreateOrderProducts(Order order, Product product, int count)
     {
-        var orderProduct = new OrderProduct
+        return new OrderProduct
         {
             Product = product,
-            Order = order
+            Order = order,
+            ProductCount = count
         };
-
-        return orderProduct;
     }
 
-    private static void AddContext(ShopDbContext shopDb)
+    private static void CrateAndAddData(ShopDbContext shopDb)
     {
         var category1 = new Category
         {
             Name = "Морепродукты"
         };
 
-        var product1 = CrateProduct(category1, "Минтай", 35);
-        var product2 = CrateProduct(category1, "Морская капуста", 25);
+        var product1 = CreateProduct(category1, "Минтай", 35);
+        var product2 = CreateProduct(category1, "Морская капуста", 25);
 
         shopDb.Products.Add(product1);
         shopDb.Products.Add(product2);
@@ -61,8 +56,8 @@ public class ShopDbProgram
             Name = "Напитки"
         };
 
-        var product3 = CrateProduct(category2, "Чай", 15);
-        var product4 = CrateProduct(category2, "Вода", 5);
+        var product3 = CreateProduct(category2, "Чай", 15);
+        var product4 = CreateProduct(category2, "Вода", 5);
 
         shopDb.Products.Add(product3);
         shopDb.Products.Add(product4);
@@ -72,24 +67,24 @@ public class ShopDbProgram
             Name = "Молочные продукты"
         };
 
-        var product5 = CrateProduct(category3, "Молоко", 25);
-        var product6 = CrateProduct(category3, "Сыр", 120);
+        var product5 = CreateProduct(category3, "Молоко", 25);
+        var product6 = CreateProduct(category3, "Сыр", 120);
 
         shopDb.Products.Add(product5);
         shopDb.Products.Add(product6);
 
-        var buyer1 = CreateBuyer("Иван", "Иванов", "Иванович", "Ivanov@mail.ru", "5123");
-        var buyer2 = CreateBuyer("Степан", "Степанов", "Степанович", "S2000@mail.ru", "2000");
+        var customer1 = CreateCustomer("Иван", "Иванов", "Иванович", "Ivanov@mail.ru", "5123");
+        var customer2 = CreateCustomer("Степан", "Степанов", "Степанович", "S2000@mail.ru", "2000");
 
         var order1 = new Order
         {
-            Buyer = buyer1,
+            Customer = customer1,
             OrderDate = new DateTime(2025, 3, 15, 12, 30, 02),
         };
 
-        var orderProducts1 = CreateOrderProducts(order1, product3);
-        var orderProducts2 = CreateOrderProducts(order1, product2);
-        var orderProducts3 = CreateOrderProducts(order1, product2);
+        var orderProducts1 = CreateOrderProducts(order1, product3, 1);
+        var orderProducts2 = CreateOrderProducts(order1, product2, 2);
+        var orderProducts3 = CreateOrderProducts(order1, product5, 2);
 
         order1.OrderProducts = new List<OrderProduct>
         {
@@ -100,13 +95,13 @@ public class ShopDbProgram
 
         var order2 = new Order
         {
-            Buyer = buyer2,
+            Customer = customer2,
             OrderDate = new DateTime(2025, 3, 14, 10, 00, 48),
         };
 
-        var orderProducts4 = CreateOrderProducts(order2, product2);
-        var orderProducts5 = CreateOrderProducts(order2, product1);
-        var orderProducts6 = CreateOrderProducts(order2, product3);
+        var orderProducts4 = CreateOrderProducts(order2, product2, 1);
+        var orderProducts5 = CreateOrderProducts(order2, product1, 1);
+        var orderProducts6 = CreateOrderProducts(order2, product3, 4);
 
 
         order2.OrderProducts = new List<OrderProduct>
@@ -128,7 +123,7 @@ public class ShopDbProgram
 
         if (product is null)
         {
-            Console.WriteLine("Не удалось изменить цену. Продукт не был найден");
+            Console.WriteLine("Ошибка! Продукт не был найден");
 
             return;
         }
@@ -145,7 +140,7 @@ public class ShopDbProgram
 
         if (product is null)
         {
-            Console.WriteLine("Не удалось удалить. Продукт не был найден");
+            Console.WriteLine("Ошибка! Продукт не был найден");
 
             return;
         }
@@ -156,68 +151,34 @@ public class ShopDbProgram
         Console.WriteLine("Продукт удален");
     }
 
-    private static void SetLinqQueries(ShopDbContext shopDb)
+    private static Product? GetMostPurchasedProduct(ShopDbContext shopDb)
     {
-        var productsArray = shopDb.Products
-            .Include(op => op.OrderProducts)
-            .ToArray();
+        return shopDb.OrderProducts
+            .OrderByDescending(op => op.ProductCount)
+            .Select(op => op.Product)
+            .FirstOrDefault();
+    }
 
-        var mostPurchasedProduct = productsArray
-            .OrderByDescending(p => p.OrderProducts.Count)
-            .FirstOrDefault(); ;
-
-        if (mostPurchasedProduct is null)
-        {
-            Console.WriteLine("Список товаров пуст");
-        }
-        else
-        {
-            Console.WriteLine("Самый часто покупаемый товар: {0}", mostPurchasedProduct.Name);
-        }
-
-        var ordersArray = shopDb.Orders
+    private static Dictionary<Customer, decimal> GetCustomersAndSpentMoneySumDictionary(ShopDbContext shopDb)
+    {
+        return shopDb.Orders
             .Include(o => o.OrderProducts)
-            .ToArray();
-
-        var buyersAndSpentMoneySumDictionary = ordersArray
+            .Include(o => o.Customer)
             .Select(o => new
             {
-                Id = o.BuyerId,
-                Sum = o.OrderProducts.Sum(op => op.Product!.Price)
+                Id = o.Customer,
+                Sum = o.OrderProducts.Sum(op => op.ProductCount * op.Product.Price)
             })
             .ToDictionary(b => b.Id, b => b.Sum);
+    }
 
-        if (buyersAndSpentMoneySumDictionary.Count == 0)
-        {
-            Console.WriteLine("Коллекция пуста");
-        }
-        else
-        {
-            foreach (var buyer in buyersAndSpentMoneySumDictionary)
-            {
-                Console.WriteLine("Покупатель {0}, сумма заказа {1}", buyer.Key, buyer.Value);
-            }
-        }
-
-        var categoriesArray = shopDb.Categories
-            .Include(p => p.Products)
-                .ThenInclude(p => p.OrderProducts)
-            .ToArray();
-
-        var categoryAndPurchasedProductsCountDictionary = categoriesArray
-            .ToDictionary(c => c, c => c.Products.Sum(p => p.OrderProducts.Count));
-
-        if (categoryAndPurchasedProductsCountDictionary.Count == 0)
-        {
-            Console.WriteLine("Коллекция пуста");
-        }
-        else
-        {
-            foreach (var category in categoryAndPurchasedProductsCountDictionary)
-            {
-                Console.WriteLine("Категория: {0}, товаров куплено: {1}", category.Key.Name, category.Value);
-            }
-        }
+    private static Dictionary<Category, int> GetCategoryAndPurchasedProductsCountDictionary(ShopDbContext shopDb)
+    {
+        return shopDb.OrderProducts
+            .Include(op => op.Product)
+                .ThenInclude(p => p.Category)
+            .GroupBy(op => op.Product.Category)
+            .ToDictionary(c => c.Key, op => op.Sum(op => op.ProductCount));
     }
 
     public static void Main(string[] args)
@@ -226,26 +187,67 @@ public class ShopDbProgram
         {
             using var shopDb = new ShopDbContext();
 
-            shopDb.Database.Migrate();
+            shopDb.Database.EnsureCreated();
 
-            AddContext(shopDb);
+            CrateAndAddData(shopDb);
 
             UpdateProductPrice(shopDb, "Вода", 20);
             DeleteProduct(shopDb, "Вода");
 
-            SetLinqQueries(shopDb);
+            var mostPurchasedProduct = GetMostPurchasedProduct(shopDb);
+
+            if (mostPurchasedProduct is null)
+            {
+                Console.WriteLine("Список товаров пуст");
+            }
+            else
+            {
+                Console.WriteLine("Самый часто покупаемый товар: {0}", mostPurchasedProduct.Name);
+            }
+
+            Console.WriteLine();
+
+            var customersAndSpentMoneySumDictionary = GetCustomersAndSpentMoneySumDictionary(shopDb);
+
+            if (customersAndSpentMoneySumDictionary.Count == 0)
+            {
+                Console.WriteLine("Коллекция пуста");
+            }
+            else
+            {
+                foreach (var customer in customersAndSpentMoneySumDictionary)
+                {
+                    Console.WriteLine("Покупатель {0}, сумма заказа {1:f2}", customer.Key.FirstName, customer.Value);
+                }
+            }
+
+            Console.WriteLine();
+
+            var categoryAndPurchasedProductsCountDictionary = GetCategoryAndPurchasedProductsCountDictionary(shopDb);
+
+            if (categoryAndPurchasedProductsCountDictionary.Count == 0)
+            {
+                Console.WriteLine("Коллекция пуста");
+            }
+            else
+            {
+                foreach (var category in categoryAndPurchasedProductsCountDictionary)
+                {
+                    Console.WriteLine("Категория: {0}, товаров куплено: {1}", category.Key.Name, category.Value);
+                }
+            }
         }
-        catch (SqlException e)
+        catch (SqlException)
         {
-            Console.WriteLine($"Выполнился некорректный запрос к БД или произошла ошибка соединения с БД. {e}");
+            Console.WriteLine("Выполнился некорректный запрос к БД или произошла ошибка соединения с БД.");
         }
-        catch (InvalidOperationException e)
+        catch (InvalidOperationException)
         {
-            Console.WriteLine($"Ошибка прав доступа к БД или данная БД сейчас используется другим пользователем. {e}");
+            Console.WriteLine("Ошибка прав доступа к БД или данная БД сейчас используется другим пользователем.");
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            Console.WriteLine($"Произошла ошибка: {e}");
+            Console.WriteLine("Произошла ошибка.");
         }
     }
 }

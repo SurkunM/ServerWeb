@@ -6,9 +6,11 @@ public class OrderProduct
 
     public int ProductId { get; set; }
 
-    public virtual Product? Product { get; set; }
+    public virtual required Product Product { get; set; }
 
     public int OrderId { get; set; }
 
-    public virtual Order? Order { get; set; }
+    public int ProductCount { get; set; }
+
+    public virtual required Order Order { get; set; }
 }

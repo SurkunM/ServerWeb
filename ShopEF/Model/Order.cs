@@ -6,9 +6,9 @@ public class Order
 
     public DateTime OrderDate { get; set; }
 
-    public int BuyerId { get; set; }
+    public int CustomerId { get; set; }
 
-    public virtual Buyer? Buyer { get; set; }
+    public virtual required Customer Customer { get; set; }
 
     public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
 }
