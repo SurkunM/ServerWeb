@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using UnitOfWorkTask.Model.RepositoryAbstractions.Interfaces;
 
 namespace UnitOfWorkTask.Model.RepositoryAbstractions.BaseRepository;
 
@@ -10,10 +11,7 @@ public abstract class BaseEfRepository<T> : IRepository<T> where T : class
 
     public BaseEfRepository(DbContext db)
     {
-        if (db is null)
-        {
-            throw new ArgumentNullException(nameof(db));
-        }
+        ArgumentNullException.ThrowIfNull(db);
 
         _db = db;
         _dbSet = db.Set<T>();

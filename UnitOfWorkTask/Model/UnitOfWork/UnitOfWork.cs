@@ -1,11 +1,12 @@
-﻿using UnitOfWorkTask.Model.RepositoryAbstractions;
-using UnitOfWorkTask.Model.UnitOfWorkAbstractions;
+﻿using UnitOfWorkTask.Model.UnitOfWorkAbstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using UnitOfWorkTask.Model.RepositoryAbstractions.Interfaces;
+using UnitOfWorkTask.Model.Repositories;
 
-namespace UnitOfWorkTask.Model;
+namespace UnitOfWorkTask.Model.UnitOfWork;
 
-public class UnitOfWork : IUnitOfWork
+public class UnitOfWork : IUnitOfWork //TODO: 11. UnitOfWork - если вызывался Dispose, то все методы (кроме самого Dispose) должны бросать исключение.
 {
     private readonly DbContext _db;
 
@@ -13,15 +14,10 @@ public class UnitOfWork : IUnitOfWork
 
     public UnitOfWork(DbContext db)
     {
-        if (db is null)
-        {
-            throw new ArgumentNullException(nameof(db));
-        }
-
-        _db = db;
+        _db = db ?? throw new ArgumentNullException(nameof(db));
     }
 
-    public T? GetRepository<T>() where T : class
+    public T GetRepository<T>() where T : class
     {
         if (typeof(T) == typeof(ICategoryRepository))
         {
@@ -38,9 +34,9 @@ public class UnitOfWork : IUnitOfWork
             return new OrderRepository(_db) as T;
         }
 
-        if (typeof(T) == typeof(IBuyerRepository))
+        if (typeof(T) == typeof(ICustomerRepository))
         {
-            return new BuyerRepository(_db) as T;
+            return new CustomerRepository(_db) as T;
         }
 
         throw new Exception("Неизвестный тип репозитория:" + typeof(T));
@@ -53,7 +49,7 @@ public class UnitOfWork : IUnitOfWork
             throw new InvalidOperationException("Транзакция уже создана");
         }
 
-        _transaction = _db.Database.BeginTransaction();        
+        _transaction = _db.Database.BeginTransaction();
     }
 
     public void RollbackTransaction()
@@ -78,11 +74,7 @@ public class UnitOfWork : IUnitOfWork
 
     public void Dispose()
     {
-        if (_transaction is not null)
-        {
-            _transaction.Rollback();
-            _transaction = null;
-        }
+        RollbackTransaction();
 
         _db.Dispose();
     }

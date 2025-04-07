@@ -1,6 +1,6 @@
 ﻿using UnitOfWorkTask.Model.RepositoryAbstractions.BaseRepository;
 
-namespace UnitOfWorkTask.Model.RepositoryAbstractions;
+namespace UnitOfWorkTask.Model.RepositoryAbstractions.Interfaces;
 
 public interface IRepository<T>: IRepository where T : class
 {

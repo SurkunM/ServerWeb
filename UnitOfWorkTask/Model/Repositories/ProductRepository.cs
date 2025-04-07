@@ -1,9 +1,9 @@
-﻿using UnitOfWorkTask.Model.RepositoryAbstractions;
-using UnitOfWorkTask.Model.RepositoryAbstractions.BaseRepository;
+﻿using UnitOfWorkTask.Model.RepositoryAbstractions.BaseRepository;
 using Microsoft.EntityFrameworkCore;
-using ShopEF.Model;
+using UnitOfWorkTask.Model.RepositoryAbstractions.Interfaces;
+using UnitOfWorkTask.Model.Entities;
 
-namespace UnitOfWorkTask.Model;
+namespace UnitOfWorkTask.Model.Repositories;
 
 public class ProductRepository : BaseEfRepository<Product>, IProductRepository
 {

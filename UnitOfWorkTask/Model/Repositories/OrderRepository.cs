@@ -1,21 +1,21 @@
-﻿using UnitOfWorkTask.Model.RepositoryAbstractions;
+﻿using Microsoft.EntityFrameworkCore;
 using UnitOfWorkTask.Model.RepositoryAbstractions.BaseRepository;
-using Microsoft.EntityFrameworkCore;
-using ShopEF.Model;
+using UnitOfWorkTask.Model.RepositoryAbstractions.Interfaces;
+using UnitOfWorkTask.Model.Entities;
 
-namespace UnitOfWorkTask.Model;
+namespace UnitOfWorkTask.Model.Repositories;
 
 public class OrderRepository : BaseEfRepository<Order>, IOrderRepository
 {
     public OrderRepository(DbContext db) : base(db) { }
 
-    public Dictionary<int, decimal> GetBuyersAndSpentMoneySumDictionary()
+    public Dictionary<int, decimal> GetCustomersAndSpentMoneySumDictionary()
     {
         return _dbSet
             .Include(o => o.OrderProducts)
             .Select(o => new
             {
-                Id = o.BuyerId,
+                Id = o.CustomerId,
                 Sum = o.OrderProducts.Sum(op => op.Product!.Price)
             })
             .ToDictionary(b => b.Id, b => b.Sum);

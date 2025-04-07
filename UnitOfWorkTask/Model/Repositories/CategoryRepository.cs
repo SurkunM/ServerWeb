@@ -1,9 +1,9 @@
-﻿using UnitOfWorkTask.Model.RepositoryAbstractions;
+﻿using Microsoft.EntityFrameworkCore;
 using UnitOfWorkTask.Model.RepositoryAbstractions.BaseRepository;
-using Microsoft.EntityFrameworkCore;
-using ShopEF.Model;
+using UnitOfWorkTask.Model.RepositoryAbstractions.Interfaces;
+using UnitOfWorkTask.Model.Entities;
 
-namespace UnitOfWorkTask.Model;
+namespace UnitOfWorkTask.Model.Repositories;
 
 public class CategoryRepository : BaseEfRepository<Category>, ICategoryRepository
 {
@@ -11,7 +11,6 @@ public class CategoryRepository : BaseEfRepository<Category>, ICategoryRepositor
 
     public Dictionary<Category, int>? GetCategoryAndPurchasedProductsCountDictionary()
     {
-
         return _dbSet
             .Include(c => c.Products)
                 .ThenInclude(p => p.OrderProducts)
