@@ -8,5 +8,5 @@ namespace UnitOfWorkTask.Model.Repositories;
 
 public class CustomerRepository : BaseEfRepository<Customer>, ICustomerRepository
 {
-    public CustomerRepository(DbContext db) : base(db) { }
+    public CustomerRepository(ShopDbContext db) : base(db) { }
 }

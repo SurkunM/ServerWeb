@@ -7,16 +7,17 @@ namespace UnitOfWorkTask.Model.Repositories;
 
 public class OrderRepository : BaseEfRepository<Order>, IOrderRepository
 {
-    public OrderRepository(DbContext db) : base(db) { }
+    public OrderRepository(ShopDbContext db) : base(db) { }
 
-    public Dictionary<int, decimal> GetCustomersAndSpentMoneySumDictionary()
+    public Dictionary<Customer, decimal> GetCustomersAndSpentMoneySumDictionary()
     {
         return _dbSet
             .Include(o => o.OrderProducts)
+            .Include(o => o.Customer)
             .Select(o => new
             {
-                Id = o.CustomerId,
-                Sum = o.OrderProducts.Sum(op => op.Product!.Price)
+                Id = o.Customer,
+                Sum = o.OrderProducts.Sum(op => op.ProductCount * op.Product.Price)
             })
             .ToDictionary(b => b.Id, b => b.Sum);
     }

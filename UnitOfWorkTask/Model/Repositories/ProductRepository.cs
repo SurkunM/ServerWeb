@@ -7,13 +7,14 @@ namespace UnitOfWorkTask.Model.Repositories;
 
 public class ProductRepository : BaseEfRepository<Product>, IProductRepository
 {
-    public ProductRepository(DbContext db) : base(db) { }
+    public ProductRepository(ShopDbContext db) : base(db) { }
 
     public Product? GetMostPurchasedProduct()
     {
-        return _dbSet
-            .Include(p => p.OrderProducts)
-            .OrderByDescending(p => p.OrderProducts.Count)
+        return _db.Set<OrderProduct>()
+            .Include(op => op.Product)
+            .OrderByDescending(op => op.ProductCount)
+            .Select(op => op.Product)
             .FirstOrDefault();
     }
 }

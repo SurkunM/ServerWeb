@@ -1,45 +1,27 @@
-﻿using UnitOfWorkTask.Model.UnitOfWorkAbstractions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using UnitOfWorkTask.Model.RepositoryAbstractions.Interfaces;
-using UnitOfWorkTask.Model.Repositories;
+using Microsoft.Extensions.DependencyInjection;
+using UnitOfWorkTask.Model.UnitOfWorkAbstractions;
 
 namespace UnitOfWorkTask.Model.UnitOfWork;
 
-public class UnitOfWork : IUnitOfWork //TODO: 11. UnitOfWork - если вызывался Dispose, то все методы (кроме самого Dispose) должны бросать исключение.
+public class UnitOfWork : IUnitOfWorkTransaction //TODO: 11. UnitOfWork - если вызывался Dispose, то все методы (кроме самого Dispose) должны бросать исключение.
 {
-    private readonly DbContext _db;
+    private readonly ShopDbContext _db;
+
+    private readonly IServiceProvider _serviceProvider;
 
     private IDbContextTransaction? _transaction;
 
-    public UnitOfWork(DbContext db)
+    public UnitOfWork(ShopDbContext db, IServiceProvider serviceProvider)
     {
         _db = db ?? throw new ArgumentNullException(nameof(db));
+        _serviceProvider = serviceProvider;
     }
 
     public T GetRepository<T>() where T : class
     {
-        if (typeof(T) == typeof(ICategoryRepository))
-        {
-            return new CategoryRepository(_db) as T;
-        }
-
-        if (typeof(T) == typeof(IProductRepository))
-        {
-            return new ProductRepository(_db) as T;
-        }
-
-        if (typeof(T) == typeof(IOrderRepository))
-        {
-            return new OrderRepository(_db) as T;
-        }
-
-        if (typeof(T) == typeof(ICustomerRepository))
-        {
-            return new CustomerRepository(_db) as T;
-        }
-
-        throw new Exception("Неизвестный тип репозитория:" + typeof(T));
+        return _serviceProvider.GetRequiredService<T>();
     }
 
     public void BeginTransaction()

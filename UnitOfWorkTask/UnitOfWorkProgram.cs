@@ -1,12 +1,18 @@
-﻿using UnitOfWorkTask.Model.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using UnitOfWorkTask.Model.Entities;
+using UnitOfWorkTask.Model.Repositories;
 using UnitOfWorkTask.Model.RepositoryAbstractions.Interfaces;
 using UnitOfWorkTask.Model.UnitOfWork;
+using UnitOfWorkTask.Model.UnitOfWorkAbstractions;
 
 namespace UnitOfWorkTask;
 
 internal class UnitOfWorkProgram
 {
-    private static void EditCustomerEmail(UnitOfWork uow, int id, string newEmail)
+    private static void EditCustomerEmail(IUnitOfWorkTransaction uow, int id, string newEmail)
     {
         try
         {
@@ -74,178 +80,118 @@ internal class UnitOfWorkProgram
         }
     }
 
-    private static void SetLinqQueriesAndPrintResults(UnitOfWork uow)//TODO: 8. Нужно будет учесть пункты из задачи ShopEF
+    private static Product? GetMostPurchasedProduct(IUnitOfWorkTransaction uow)
     {
-        var productRepository = uow.GetRepository<IProductRepository>();
-        var mostPurchasedProduct = productRepository.GetMostPurchasedProduct();
+        return uow.GetRepository<IProductRepository>().GetMostPurchasedProduct();
+    }
 
-        if (mostPurchasedProduct is null)
-        {
-            Console.WriteLine("Список товаров пуст");
-        }
-        else
-        {
-            Console.WriteLine("Самый часто покупаемый товар: {0}", mostPurchasedProduct.Name);
-        }
+    private static Dictionary<Customer, decimal> GetCustomersAndSpentMoneySumDictionary(IUnitOfWorkTransaction uow)
+    {
+        return uow.GetRepository<IOrderRepository>().GetCustomersAndSpentMoneySumDictionary();
+    }
 
-        var ordersRepository = uow.GetRepository<IOrderRepository>();
-        var buyersAndSpentMoneySumDictionary = ordersRepository?.GetCustomersAndSpentMoneySumDictionary();
+    private static Dictionary<Category, int> GetCategoryAndPurchasedProductsCountDictionary(IUnitOfWorkTransaction uow)
+    {
+        return uow.GetRepository<ICategoryRepository>().GetCategoryAndPurchasedProductsCountDictionary();
+    }
 
-        if (buyersAndSpentMoneySumDictionary is null || buyersAndSpentMoneySumDictionary.Count == 0)
+    private static IServiceProvider DependencyInjection(IServiceCollection serviceCollection, IConfigurationRoot configuration)
+    {
+        serviceCollection.AddDbContext<ShopDbContext>(options =>
         {
-            Console.WriteLine("Список покупок пуст");
-        }
-        else
-        {
-            foreach (var buyer in buyersAndSpentMoneySumDictionary)
-            {
-                Console.WriteLine("Покупатель: {0}, сумма затрат на покупки: {1}", buyer.Key, buyer.Value);
-            }
-        }
+            options.UseSqlServer(configuration.GetConnectionString("ShopConnection"));
+            options.UseLazyLoadingProxies();
+        }, ServiceLifetime.Transient, ServiceLifetime.Transient);
 
-        var categoryRepository = uow.GetRepository<ICategoryRepository>();
-        var categoryAndPurchasedProductsCountDictionary = categoryRepository?.GetCategoryAndPurchasedProductsCountDictionary();
+        serviceCollection.AddTransient<DbInitializer>();
+        serviceCollection.AddTransient<IUnitOfWorkTransaction, UnitOfWork>();
 
-        if (categoryAndPurchasedProductsCountDictionary is null || categoryAndPurchasedProductsCountDictionary.Count == 0)
-        {
-            Console.WriteLine("Коллекция пуста");
-        }
-        else
-        {
-            foreach (var category in categoryAndPurchasedProductsCountDictionary)
-            {
-                Console.WriteLine("Категория: {0}, куплено товаров: {1}", category.Key.Name, category.Value);
-            }
-        }
+        serviceCollection.AddTransient<ICategoryRepository, CategoryRepository>();
+        serviceCollection.AddTransient<ICustomerRepository, CustomerRepository>();
+        serviceCollection.AddTransient<IProductRepository, ProductRepository>();
+        serviceCollection.AddTransient<IOrderRepository, OrderRepository>();
+
+        return serviceCollection.BuildServiceProvider();
     }
 
     public static void Main(string[] args)
     {
         try
         {
-            using var shopDb = new ShopDbContext();
-            using var uow = new UnitOfWork(shopDb);
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
 
-            //shopDb.Database.EnsureCreated();
+            var serviceCollection = new ServiceCollection();
+            var serviceProvider = DependencyInjection(serviceCollection, configuration);
 
-            EditCustomerEmail(uow, 1, "test@email.ru");
+            using var scope = serviceProvider.CreateScope();
+
+            try
+            {
+                var dbInitializer = serviceProvider.GetRequiredService<DbInitializer>();
+                dbInitializer.Initialize();
+            }
+            catch (Exception ex)
+            {
+                var logger = serviceProvider.GetRequiredService<ILogger<UnitOfWorkProgram>>();
+                logger.LogError(ex, "При создании базы данных произошла ошибка.");
+
+                throw;
+            }
+
+            var uow = serviceProvider.GetRequiredService<IUnitOfWorkTransaction>();
+
+            //EditCustomerEmail(uow, 1, "Di_Test@email.ru");
             //DeleteProduct(uow, 6);
-            SetLinqQueriesAndPrintResults(uow);
+
+            var mostPurchasedProduct = GetMostPurchasedProduct(uow);
+
+            if (mostPurchasedProduct is null)
+            {
+                Console.WriteLine("Список товаров пуст");
+            }
+            else
+            {
+                Console.WriteLine("Самый часто покупаемый товар: {0}", mostPurchasedProduct.Name);
+            }
+
+            Console.WriteLine();
+
+            var customersAndSpentMoneySumDictionary = GetCustomersAndSpentMoneySumDictionary(uow);
+
+            if (customersAndSpentMoneySumDictionary.Count == 0)
+            {
+                Console.WriteLine("Коллекция пуста");
+            }
+            else
+            {
+                foreach (var customer in customersAndSpentMoneySumDictionary)
+                {
+                    Console.WriteLine("Покупатель {0}, сумма заказа {1:f2}", customer.Key.FirstName, customer.Value);
+                }
+            }
+
+            Console.WriteLine();
+
+            var categoryAndPurchasedProductsCountDictionary = GetCategoryAndPurchasedProductsCountDictionary(uow);
+
+            if (categoryAndPurchasedProductsCountDictionary.Count == 0)
+            {
+                Console.WriteLine("Коллекция пуста");
+            }
+            else
+            {
+                foreach (var category in categoryAndPurchasedProductsCountDictionary)
+                {
+                    Console.WriteLine("Категория: {0}, товаров куплено: {1}", category.Key.Name, category.Value);
+                }
+            }
         }
         catch (Exception)
         {
             Console.WriteLine($"Ошибка в работе программы.");
         }
-    }
-
-    private static void CrateAndAddData(ShopDbContext shopDb) //TODO: Объявить в начале! Перед Main
-    {
-        var category1 = new Category
-        {
-            Name = "Морепродукты"
-        };
-
-        var product1 = CreateProduct(category1, "Минтай", 35);
-        var product2 = CreateProduct(category1, "Морская капуста", 25);
-
-        shopDb.Products.Add(product1);
-        shopDb.Products.Add(product2);
-
-        var category2 = new Category
-        {
-            Name = "Напитки"
-        };
-
-        var product3 = CreateProduct(category2, "Чай", 15);
-        var product4 = CreateProduct(category2, "Вода", 5);
-
-        shopDb.Products.Add(product3);
-        shopDb.Products.Add(product4);
-
-        var category3 = new Category
-        {
-            Name = "Молочные продукты"
-        };
-
-        var product5 = CreateProduct(category3, "Молоко", 25);
-        var product6 = CreateProduct(category3, "Сыр", 120);
-
-        shopDb.Products.Add(product5);
-        shopDb.Products.Add(product6);
-
-        var customer1 = CreateCustomer("Иван", "Иванов", "Иванович", "Ivanov@mail.ru", "5123");
-        var customer2 = CreateCustomer("Степан", "Степанов", "Степанович", "S2000@mail.ru", "2000");
-
-        var order1 = new Order
-        {
-            Customer = customer1,
-            OrderDate = new DateTime(2025, 3, 15, 12, 30, 02),
-        };
-
-        var orderProducts1 = CreateOrderProducts(order1, product3, 1);
-        var orderProducts2 = CreateOrderProducts(order1, product2, 2);
-        var orderProducts3 = CreateOrderProducts(order1, product5, 2);
-
-        order1.OrderProducts = new List<OrderProduct>
-        {
-            orderProducts1,
-            orderProducts2,
-            orderProducts3
-        };
-
-        var order2 = new Order
-        {
-            Customer = customer2,
-            OrderDate = new DateTime(2025, 3, 14, 10, 00, 48),
-        };
-
-        var orderProducts4 = CreateOrderProducts(order2, product2, 1);
-        var orderProducts5 = CreateOrderProducts(order2, product1, 1);
-        var orderProducts6 = CreateOrderProducts(order2, product3, 4);
-
-
-        order2.OrderProducts = new List<OrderProduct>
-        {
-            orderProducts4,
-            orderProducts5,
-            orderProducts6
-        };
-
-        shopDb.Orders.Add(order1);
-        shopDb.Orders.Add(order2);
-
-        shopDb.SaveChanges();
-    }
-
-    private static Product CreateProduct(Category category, string name, decimal price)
-    {
-        return new Product
-        {
-            Name = name,
-            Price = price,
-            Category = category
-        };
-    }
-
-    private static Customer CreateCustomer(string firstName, string lastName, string middleName, string email, string phone)
-    {
-        return new Customer
-        {
-            FirstName = firstName,
-            LastName = lastName,
-            MiddleName = middleName,
-            Phone = phone,
-            Email = email
-        };
-    }
-
-    private static OrderProduct CreateOrderProducts(Order order, Product product, int count)
-    {
-        return new OrderProduct
-        {
-            Product = product,
-            Order = order,
-            ProductCount = count
-        };
     }
 }

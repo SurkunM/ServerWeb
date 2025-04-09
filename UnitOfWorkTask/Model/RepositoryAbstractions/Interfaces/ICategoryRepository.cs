@@ -4,5 +4,5 @@ namespace UnitOfWorkTask.Model.RepositoryAbstractions.Interfaces;
 
 public interface ICategoryRepository : IRepository<Category>
 {
-    Dictionary<Category, int>? GetCategoryAndPurchasedProductsCountDictionary();
+    Dictionary<Category, int> GetCategoryAndPurchasedProductsCountDictionary();
 }

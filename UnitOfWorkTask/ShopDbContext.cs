@@ -3,7 +3,7 @@ using UnitOfWorkTask.Model.Entities;
 
 namespace UnitOfWorkTask;
 
-class ShopDbContext : DbContext
+public class ShopDbContext : DbContext
 {
     public virtual DbSet<Category> Categories { get; set; }
 
@@ -15,13 +15,7 @@ class ShopDbContext : DbContext
 
     public virtual DbSet<Product> Products { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder
-            .UseLazyLoadingProxies()
-            .UseSqlServer("Server=.;Database=Shop;Integrated Security=True;MultipleActiveResultSets=true;TrustServerCertificate=True;");
-    }
-
+    public ShopDbContext(DbContextOptions<ShopDbContext> options) : base(options) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
