@@ -1,6 +1,6 @@
 ﻿namespace UnitOfWorkTask.Model.UnitOfWorkAbstractions;
 
-public interface IUnitOfWork : IDisposable
+public interface IUnitOfWork : IUnitOfWorkTransaction, IDisposable
 {
     void Save();
 

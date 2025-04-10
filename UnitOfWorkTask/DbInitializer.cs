@@ -4,7 +4,6 @@ namespace UnitOfWorkTask;
 
 class DbInitializer
 {
-
     private readonly ShopDbContext _dbContext;
 
     public DbInitializer(ShopDbContext dbContext)
@@ -14,20 +13,17 @@ class DbInitializer
 
     public void Initialize()
     {
-        throw new Exception();
         if (!_dbContext.Database.EnsureCreated())
         {
             return;
         }
 
-        CrateAndAddData(_dbContext);
+        CrateAndAddDbData(_dbContext);
 
         _dbContext.SaveChanges();
     }
 
-
-
-    private void CrateAndAddData(ShopDbContext shopDb)
+    private static void CrateAndAddDbData(ShopDbContext shopDb)
     {
         var category1 = new Category
         {
@@ -104,7 +100,7 @@ class DbInitializer
         shopDb.Orders.Add(order2);
     }
 
-    private Product CreateProduct(Category category, string name, decimal price)
+    private static Product CreateProduct(Category category, string name, decimal price)
     {
         return new Product
         {
@@ -114,7 +110,7 @@ class DbInitializer
         };
     }
 
-    private Customer CreateCustomer(string firstName, string lastName, string middleName, string email, string phone)
+    private static Customer CreateCustomer(string firstName, string lastName, string middleName, string email, string phone)
     {
         return new Customer
         {
@@ -126,7 +122,7 @@ class DbInitializer
         };
     }
 
-    private OrderProduct CreateOrderProducts(Order order, Product product, int count)
+    private static OrderProduct CreateOrderProducts(Order order, Product product, int count)
     {
         return new OrderProduct
         {

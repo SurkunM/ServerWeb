@@ -1,12 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
+﻿using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using UnitOfWorkTask.Model.UnitOfWorkAbstractions;
 
 namespace UnitOfWorkTask.Model.UnitOfWork;
 
-public class UnitOfWork : IUnitOfWorkTransaction //TODO: 11. UnitOfWork - если вызывался Dispose, то все методы (кроме самого Dispose) должны бросать исключение.
+public class UnitOfWork : IUnitOfWork, IDisposable
 {
+    private bool _disposed;
+
     private readonly ShopDbContext _db;
 
     private readonly IServiceProvider _serviceProvider;
@@ -16,7 +17,9 @@ public class UnitOfWork : IUnitOfWorkTransaction //TODO: 11. UnitOfWork - есл
     public UnitOfWork(ShopDbContext db, IServiceProvider serviceProvider)
     {
         _db = db ?? throw new ArgumentNullException(nameof(db));
+
         _serviceProvider = serviceProvider;
+        _disposed = false;
     }
 
     public T GetRepository<T>() where T : class
@@ -26,6 +29,8 @@ public class UnitOfWork : IUnitOfWorkTransaction //TODO: 11. UnitOfWork - есл
 
     public void BeginTransaction()
     {
+        ThrowExceptionIfDisposed();
+
         if (_transaction != null)
         {
             throw new InvalidOperationException("Транзакция уже создана");
@@ -36,6 +41,8 @@ public class UnitOfWork : IUnitOfWorkTransaction //TODO: 11. UnitOfWork - есл
 
     public void RollbackTransaction()
     {
+        ThrowExceptionIfDisposed();
+
         if (_transaction is not null)
         {
             _transaction.Rollback();
@@ -45,6 +52,8 @@ public class UnitOfWork : IUnitOfWorkTransaction //TODO: 11. UnitOfWork - есл
 
     public void Save()
     {
+        ThrowExceptionIfDisposed();
+
         if (_transaction is not null)
         {
             _transaction.Commit();
@@ -54,10 +63,26 @@ public class UnitOfWork : IUnitOfWorkTransaction //TODO: 11. UnitOfWork - есл
         _db.SaveChanges();
     }
 
+    private void ThrowExceptionIfDisposed()
+    {
+        if (!_disposed)
+        {
+            return;
+        }
+
+        throw new ObjectDisposedException(nameof(_disposed));
+    }
+
     public void Dispose()
     {
+        if (_disposed)
+        {
+            return;
+        }
+
         RollbackTransaction();
 
         _db.Dispose();
+        _disposed = true;
     }
 }

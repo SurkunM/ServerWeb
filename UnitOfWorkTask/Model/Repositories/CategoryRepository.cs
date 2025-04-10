@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using UnitOfWorkTask.Model.Entities;
 using UnitOfWorkTask.Model.RepositoryAbstractions.BaseRepository;
 using UnitOfWorkTask.Model.RepositoryAbstractions.Interfaces;
-using UnitOfWorkTask.Model.Entities;
 
 namespace UnitOfWorkTask.Model.Repositories;
 

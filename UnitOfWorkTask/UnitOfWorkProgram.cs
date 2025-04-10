@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using NLog;
 using UnitOfWorkTask.Model.Entities;
 using UnitOfWorkTask.Model.Repositories;
 using UnitOfWorkTask.Model.RepositoryAbstractions.Interfaces;
@@ -12,7 +12,7 @@ namespace UnitOfWorkTask;
 
 internal class UnitOfWorkProgram
 {
-    private static void EditCustomerEmail(IUnitOfWorkTransaction uow, int id, string newEmail)
+    private static void EditCustomerEmail(IUnitOfWork uow, int id, string newEmail)
     {
         try
         {
@@ -46,7 +46,7 @@ internal class UnitOfWorkProgram
         }
     }
 
-    private static void DeleteProduct(UnitOfWork uow, int id)
+    private static void DeleteProduct(IUnitOfWork uow, int id)
     {
         try
         {
@@ -80,22 +80,22 @@ internal class UnitOfWorkProgram
         }
     }
 
-    private static Product? GetMostPurchasedProduct(IUnitOfWorkTransaction uow)
+    private static Product? GetMostPurchasedProduct(IUnitOfWork uow)
     {
         return uow.GetRepository<IProductRepository>().GetMostPurchasedProduct();
     }
 
-    private static Dictionary<Customer, decimal> GetCustomersAndSpentMoneySumDictionary(IUnitOfWorkTransaction uow)
+    private static Dictionary<Customer, decimal> GetCustomersAndSpentMoneySumDictionary(IUnitOfWork uow)
     {
         return uow.GetRepository<IOrderRepository>().GetCustomersAndSpentMoneySumDictionary();
     }
 
-    private static Dictionary<Category, int> GetCategoryAndPurchasedProductsCountDictionary(IUnitOfWorkTransaction uow)
+    private static Dictionary<Category, int> GetCategoryAndPurchasedProductsCountDictionary(IUnitOfWork uow)
     {
         return uow.GetRepository<ICategoryRepository>().GetCategoryAndPurchasedProductsCountDictionary();
     }
 
-    private static IServiceProvider DependencyInjection(IServiceCollection serviceCollection, IConfigurationRoot configuration)
+    private static ServiceProvider ConfigureShopServices(IServiceCollection serviceCollection, IConfigurationRoot configuration)
     {
         serviceCollection.AddDbContext<ShopDbContext>(options =>
         {
@@ -104,7 +104,7 @@ internal class UnitOfWorkProgram
         }, ServiceLifetime.Transient, ServiceLifetime.Transient);
 
         serviceCollection.AddTransient<DbInitializer>();
-        serviceCollection.AddTransient<IUnitOfWorkTransaction, UnitOfWork>();
+        serviceCollection.AddTransient<IUnitOfWork, UnitOfWork>();
 
         serviceCollection.AddTransient<ICategoryRepository, CategoryRepository>();
         serviceCollection.AddTransient<ICustomerRepository, CustomerRepository>();
@@ -124,7 +124,7 @@ internal class UnitOfWorkProgram
                 .Build();
 
             var serviceCollection = new ServiceCollection();
-            var serviceProvider = DependencyInjection(serviceCollection, configuration);
+            var serviceProvider = ConfigureShopServices(serviceCollection, configuration);
 
             using var scope = serviceProvider.CreateScope();
 
@@ -135,16 +135,16 @@ internal class UnitOfWorkProgram
             }
             catch (Exception ex)
             {
-                var logger = serviceProvider.GetRequiredService<ILogger<UnitOfWorkProgram>>();
-                logger.LogError(ex, "При создании базы данных произошла ошибка.");
+                var logger = LogManager.GetCurrentClassLogger();
+                logger.Error(ex, "При создании базы данных произошла ошибка.");
 
                 throw;
             }
 
-            var uow = serviceProvider.GetRequiredService<IUnitOfWorkTransaction>();
+            var uow = serviceProvider.GetRequiredService<IUnitOfWork>();
 
-            //EditCustomerEmail(uow, 1, "Di_Test@email.ru");
-            //DeleteProduct(uow, 6);
+            EditCustomerEmail(uow, 1, "0001@email.ru");
+            DeleteProduct(uow, 6);
 
             var mostPurchasedProduct = GetMostPurchasedProduct(uow);
 
@@ -191,7 +191,7 @@ internal class UnitOfWorkProgram
         }
         catch (Exception)
         {
-            Console.WriteLine($"Ошибка в работе программы.");
+            Console.WriteLine("Ошибка в работе программы.");
         }
     }
 }

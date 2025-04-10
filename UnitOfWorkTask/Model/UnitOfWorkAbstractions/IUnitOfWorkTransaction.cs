@@ -1,6 +1,6 @@
 ﻿namespace UnitOfWorkTask.Model.UnitOfWorkAbstractions;
 
-interface IUnitOfWorkTransaction : IUnitOfWork
+public interface IUnitOfWorkTransaction
 {
     void BeginTransaction();
 
