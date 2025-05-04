@@ -13,12 +13,12 @@ public class Person
     public Person(string firstName, string lastName, int age, string phone)
     {
         ArgumentNullException.ThrowIfNull(firstName);
-
         ArgumentNullException.ThrowIfNull(lastName);
+        ArgumentNullException.ThrowIfNullOrEmpty(phone);
 
         if (age <= 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(age), $"Возраст ({age}) не может быть меньше или равно нулю");
+            throw new ArgumentOutOfRangeException(nameof(age), $"Возраст ({age}) не может быть меньше или равен нулю");
         }
 
         if (phone.Length <= 0)
