@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using NLog;
 using NLog.Extensions.Logging;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace LogTask;
 
@@ -13,16 +14,17 @@ internal class LogProgram
 
         try
         {
-            using var servicesProvider = new ServiceCollection()
+            using var serviceProvider = new ServiceCollection()
                 .AddTransient<Runner>()
                 .AddLogging(loggingBuilder =>
                 {
                     loggingBuilder.ClearProviders();
-                    loggingBuilder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Information);
+                    loggingBuilder.SetMinimumLevel(LogLevel.Information);
                     loggingBuilder.AddNLog();
-                }).BuildServiceProvider();
+                })
+                .BuildServiceProvider();
 
-            var runner = servicesProvider.GetRequiredService<Runner>();
+            var runner = serviceProvider.GetRequiredService<Runner>();
 
             runner.StartAction();
             runner.EndAction();
@@ -31,7 +33,7 @@ internal class LogProgram
         }
         catch (Exception e)
         {
-            logger.Error($"Ошибка! {e}");
+            logger.Error(e, "Ошибка в работе программы");
         }
     }
 }

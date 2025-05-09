@@ -37,7 +37,7 @@ internal class CountriesJsonProgram
 
             if (countries is null)
             {
-                Console.WriteLine("Список стран пуст");
+                Console.WriteLine("Список стран пуст.");
             }
             else
             {
@@ -47,11 +47,15 @@ internal class CountriesJsonProgram
         }
         catch (NullReferenceException)
         {
-            Console.WriteLine("Ошибка десериализации данных с файла");
+            Console.WriteLine("Ошибка десериализации данных с файла.");
         }
         catch (FileNotFoundException)
         {
-            Console.WriteLine("Не найден файл для чтения");
+            Console.WriteLine("Не найден файл для чтения.");
+        }
+        catch(Exception)
+        {
+            Console.WriteLine("Ошибка в работе программы.");
         }
     }
 }
