@@ -8,9 +8,7 @@ public class Product
 
     public decimal Price { get; set; }
 
-    public int CategoryId { get; set; }
+    public virtual ICollection<CategoryProduct> ProductCategories { get; set; } = new List<CategoryProduct>();
 
-    public virtual required Category Category { get; set; }
-
-    public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
+    public virtual ICollection<OrderProduct> ProductOrders { get; set; } = new List<OrderProduct>();
 }
