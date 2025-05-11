@@ -11,46 +11,6 @@ public class DbInitializer
         _shopDb = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
-    private static Product CreateProduct(string name, decimal price)
-    {
-        return new Product
-        {
-            Name = name,
-            Price = price
-        };
-    }
-
-    private static Customer CreateCustomer(string firstName, string lastName, string middleName, string email, string phone)
-    {
-        return new Customer
-        {
-            FirstName = firstName,
-            LastName = lastName,
-            MiddleName = middleName,
-            Phone = phone,
-            Email = email
-        };
-    }
-
-    private static CategoryProduct CreateCategoryProduct(Category category, Product product)
-    {
-        return new CategoryProduct
-        {
-            Category = category,
-            Product = product
-        };
-    }
-
-    private static OrderProduct CreateOrderProducts(Order order, Product product, int count)
-    {
-        return new OrderProduct
-        {
-            Product = product,
-            Order = order,
-            ProductsCount = count
-        };
-    }
-
     public void Initialize()
     {
         _shopDb.Database.EnsureCreated();
@@ -191,5 +151,45 @@ public class DbInitializer
         _shopDb.Orders.Add(order2);
 
         _shopDb.SaveChanges();
+    }
+
+    private static Product CreateProduct(string name, decimal price)
+    {
+        return new Product
+        {
+            Name = name,
+            Price = price
+        };
+    }
+
+    private static Customer CreateCustomer(string firstName, string lastName, string middleName, string email, string phone)
+    {
+        return new Customer
+        {
+            FirstName = firstName,
+            LastName = lastName,
+            MiddleName = middleName,
+            Phone = phone,
+            Email = email
+        };
+    }
+
+    private static CategoryProduct CreateCategoryProduct(Category category, Product product)
+    {
+        return new CategoryProduct
+        {
+            Category = category,
+            Product = product
+        };
+    }
+
+    private static OrderProduct CreateOrderProducts(Order order, Product product, int count)
+    {
+        return new OrderProduct
+        {
+            Product = product,
+            Order = order,
+            ProductsCount = count
+        };
     }
 }
