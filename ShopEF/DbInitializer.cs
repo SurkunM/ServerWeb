@@ -15,6 +15,13 @@ public class DbInitializer
     {
         _shopDb.Database.EnsureCreated();
 
+        CreateData();
+
+        _shopDb.SaveChanges();
+    }
+
+    private void CreateData()
+    {
         var category0 = new Category
         {
             Name = "Продукты питания"
@@ -31,7 +38,7 @@ public class DbInitializer
         var productCategories1 = CreateCategoryProduct(category0, product1);
         var productCategories2 = CreateCategoryProduct(category1, product1);
 
-        product1.ProductCategories = new List<CategoryProduct>
+        product1.ProductCategories = new List<ProductCategory>
         {
             productCategories1,
             productCategories2
@@ -40,7 +47,7 @@ public class DbInitializer
         var productCategories3 = CreateCategoryProduct(category0, product2);
         var productCategories4 = CreateCategoryProduct(category1, product2);
 
-        product2.ProductCategories = new List<CategoryProduct>
+        product2.ProductCategories = new List<ProductCategory>
         {
             productCategories3,
             productCategories4
@@ -60,7 +67,7 @@ public class DbInitializer
         var productCategories5 = CreateCategoryProduct(category0, product3);
         var productCategories6 = CreateCategoryProduct(category2, product3);
 
-        product3.ProductCategories = new List<CategoryProduct>
+        product3.ProductCategories = new List<ProductCategory>
         {
             productCategories5,
             productCategories6
@@ -69,7 +76,7 @@ public class DbInitializer
         var productCategories7 = CreateCategoryProduct(category0, product4);
         var productCategories8 = CreateCategoryProduct(category2, product4);
 
-        product4.ProductCategories = new List<CategoryProduct>
+        product4.ProductCategories = new List<ProductCategory>
         {
             productCategories7,
             productCategories8
@@ -90,7 +97,7 @@ public class DbInitializer
         var productCategories10 = CreateCategoryProduct(category2, product5);
         var productCategories13 = CreateCategoryProduct(category3, product5);
 
-        product5.ProductCategories = new List<CategoryProduct>
+        product5.ProductCategories = new List<ProductCategory>
         {
             productCategories9,
             productCategories10,
@@ -100,7 +107,7 @@ public class DbInitializer
         var productCategories11 = CreateCategoryProduct(category0, product6);
         var productCategories12 = CreateCategoryProduct(category3, product6);
 
-        product6.ProductCategories = new List<CategoryProduct>
+        product6.ProductCategories = new List<ProductCategory>
         {
             productCategories11,
             productCategories12
@@ -149,8 +156,6 @@ public class DbInitializer
 
         _shopDb.Orders.Add(order1);
         _shopDb.Orders.Add(order2);
-
-        _shopDb.SaveChanges();
     }
 
     private static Product CreateProduct(string name, decimal price)
@@ -162,7 +167,7 @@ public class DbInitializer
         };
     }
 
-    private static Customer CreateCustomer(string firstName, string lastName, string middleName, string email, string phone)
+    private static Customer CreateCustomer(string firstName, string lastName, string? middleName, string email, string phone)
     {
         return new Customer
         {
@@ -174,9 +179,9 @@ public class DbInitializer
         };
     }
 
-    private static CategoryProduct CreateCategoryProduct(Category category, Product product)
+    private static ProductCategory CreateCategoryProduct(Category category, Product product)
     {
-        return new CategoryProduct
+        return new ProductCategory
         {
             Category = category,
             Product = product

@@ -52,18 +52,18 @@ public class ShopDbProgram
     {
         return shopDb.OrderProducts
             .GroupBy(op => op.Order)
-            .ToDictionary(o => o.Key.Customer, valueOp => valueOp.Sum(op => op.Product.Price * op.ProductsCount));
+            .ToDictionary(o => o.Key.Customer, gOp => gOp.Sum(op => op.Product.Price * op.ProductsCount));
     }
 
     private static Dictionary<Category, int> GetCategoryAndPurchasedProductsCountDictionary(ShopDbContext shopDb)
     {
-        return shopDb.CategoryProducts
-                .Select(cp => new
+        return shopDb.ProductCategories
+                .Select(pc => new
                 {
-                    cp.Category,
-                    ProductsCount = cp.Product.ProductOrders.Sum(op => op.ProductsCount)
+                    pc.Category,
+                    ProductsCount = pc.Product.OrderProducts.Sum(op => op.ProductsCount)
                 })
-                .GroupBy(c => c.Category)
+                .GroupBy(a => a.Category)
                 .ToDictionary(c => c.Key, a => a.Sum(pc => pc.ProductsCount));
     }
 

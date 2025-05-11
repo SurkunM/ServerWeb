@@ -9,7 +9,7 @@ public class ShopDbContext : DbContext
 
     public virtual DbSet<Category> Categories { get; set; }
 
-    public virtual DbSet<CategoryProduct> CategoryProducts { get; set; }
+    public virtual DbSet<ProductCategory> ProductCategories { get; set; }
 
     public virtual DbSet<Order> Orders { get; set; }
 
@@ -39,16 +39,16 @@ public class ShopDbContext : DbContext
                 .HasColumnType("decimal(18, 2)");
         });
 
-        modelBuilder.Entity<CategoryProduct>(b =>
+        modelBuilder.Entity<ProductCategory>(b =>
         {
-            b.HasOne(cp => cp.Category)
-                .WithMany(c => c.CategoryProducts)
-                .HasForeignKey(cp => cp.CategoryId)
+            b.HasOne(pc => pc.Category)
+                .WithMany(c => c.ProductCategories)
+                .HasForeignKey(pc => pc.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            b.HasOne(cp => cp.Product)
+            b.HasOne(pc => pc.Product)
                 .WithMany(p => p.ProductCategories)
-                .HasForeignKey(cp => cp.ProductId)
+                .HasForeignKey(pc => pc.ProductId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
@@ -86,7 +86,7 @@ public class ShopDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
 
             b.HasOne(op => op.Product)
-                .WithMany(p => p.ProductOrders)
+                .WithMany(p => p.OrderProducts)
                 .HasForeignKey(op => op.ProductId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
