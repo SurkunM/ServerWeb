@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using UnitOfWorkTask.Model.Entities;
+﻿using UnitOfWorkTask.Model.Entities;
 using UnitOfWorkTask.Model.RepositoryAbstractions.BaseRepository;
 using UnitOfWorkTask.Model.RepositoryAbstractions.Interfaces;
 
@@ -11,10 +10,13 @@ public class CategoryRepository : BaseEfRepository<Category>, ICategoryRepositor
 
     public Dictionary<Category, int> GetCategoryAndPurchasedProductsCountDictionary()
     {
-        return _db.Set<OrderProduct>()
-            .Include(op => op.Product)
-                .ThenInclude(p => p.Category)
-            .GroupBy(op => op.Product.Category)
-            .ToDictionary(c => c.Key, op => op.Sum(op => op.ProductCount));
+        return _db.Set<ProductCategory>()
+            .Select(pc => new
+            {
+                pc.Category,
+                ProductsCount = pc.Product.OrderProducts.Sum(op => op.ProductsCount)
+            })
+            .GroupBy(a => a.Category)
+            .ToDictionary(c => c.Key, a => a.Sum(pc => pc.ProductsCount));
     }
 }

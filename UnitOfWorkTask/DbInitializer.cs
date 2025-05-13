@@ -18,53 +18,114 @@ class DbInitializer
             return;
         }
 
-        CrateAndAddDbData(_dbContext);
+        CreateData();
 
         _dbContext.SaveChanges();
     }
 
-    private static void CrateAndAddDbData(ShopDbContext shopDb)
+    private void CreateData()
     {
+        var category0 = new Category
+        {
+            Name = "Продукты питания"
+        };
+
         var category1 = new Category
         {
             Name = "Морепродукты"
         };
 
-        var product1 = CreateProduct(category1, "Минтай", 35);
-        var product2 = CreateProduct(category1, "Морская капуста", 25);
+        var product1 = CreateProduct("Минтай", 35);
+        var product2 = CreateProduct("Морская капуста", 25);
 
-        shopDb.Products.Add(product1);
-        shopDb.Products.Add(product2);
+        var productCategories1 = CreateCategoryProduct(category0, product1);
+        var productCategories2 = CreateCategoryProduct(category1, product1);
+
+        product1.ProductCategories = new List<ProductCategory>
+        {
+            productCategories1,
+            productCategories2
+        };
+
+        var productCategories3 = CreateCategoryProduct(category0, product2);
+        var productCategories4 = CreateCategoryProduct(category1, product2);
+
+        product2.ProductCategories = new List<ProductCategory>
+        {
+            productCategories3,
+            productCategories4
+        };
+
+        _dbContext.Products.Add(product1);
+        _dbContext.Products.Add(product2);
 
         var category2 = new Category
         {
             Name = "Напитки"
         };
 
-        var product3 = CreateProduct(category2, "Чай", 15);
-        var product4 = CreateProduct(category2, "Вода", 5);
+        var product3 = CreateProduct("Чай", 15);
+        var product4 = CreateProduct("Вода", 5);
 
-        shopDb.Products.Add(product3);
-        shopDb.Products.Add(product4);
+        var productCategories5 = CreateCategoryProduct(category0, product3);
+        var productCategories6 = CreateCategoryProduct(category2, product3);
+
+        product3.ProductCategories = new List<ProductCategory>
+        {
+            productCategories5,
+            productCategories6
+        };
+
+        var productCategories7 = CreateCategoryProduct(category0, product4);
+        var productCategories8 = CreateCategoryProduct(category2, product4);
+
+        product4.ProductCategories = new List<ProductCategory>
+        {
+            productCategories7,
+            productCategories8
+        };
+
+        _dbContext.Products.Add(product3);
+        _dbContext.Products.Add(product4);
 
         var category3 = new Category
         {
             Name = "Молочные продукты"
         };
 
-        var product5 = CreateProduct(category3, "Молоко", 25);
-        var product6 = CreateProduct(category3, "Сыр", 120);
+        var product5 = CreateProduct("Молоко", 25);
+        var product6 = CreateProduct("Сыр", 120);
 
-        shopDb.Products.Add(product5);
-        shopDb.Products.Add(product6);
+        var productCategories9 = CreateCategoryProduct(category0, product5);
+        var productCategories10 = CreateCategoryProduct(category2, product5);
+        var productCategories13 = CreateCategoryProduct(category3, product5);
+
+        product5.ProductCategories = new List<ProductCategory>
+        {
+            productCategories9,
+            productCategories10,
+            productCategories13
+        };
+
+        var productCategories11 = CreateCategoryProduct(category0, product6);
+        var productCategories12 = CreateCategoryProduct(category3, product6);
+
+        product6.ProductCategories = new List<ProductCategory>
+        {
+            productCategories11,
+            productCategories12
+        };
+
+        _dbContext.Products.Add(product5);
+        _dbContext.Products.Add(product6);
 
         var customer1 = CreateCustomer("Иван", "Иванов", "Иванович", "Ivanov@mail.ru", "5123");
-        var customer2 = CreateCustomer("Степан", "Степанов", "Степанович", "S2000@mail.ru", "2000");
+        var customer2 = CreateCustomer("Степан", "Степанов", null, "S2000@mail.ru", "2000");
 
         var order1 = new Order
         {
             Customer = customer1,
-            OrderDate = new DateTime(2025, 3, 15, 12, 30, 02),
+            OrderDate = new DateTime(2025, 3, 15, 12, 30, 02)
         };
 
         var orderProducts1 = CreateOrderProducts(order1, product3, 1);
@@ -81,7 +142,7 @@ class DbInitializer
         var order2 = new Order
         {
             Customer = customer2,
-            OrderDate = new DateTime(2025, 3, 14, 10, 00, 48),
+            OrderDate = new DateTime(2025, 3, 14, 10, 00, 48)
         };
 
         var orderProducts4 = CreateOrderProducts(order2, product2, 1);
@@ -96,21 +157,20 @@ class DbInitializer
             orderProducts6
         };
 
-        shopDb.Orders.Add(order1);
-        shopDb.Orders.Add(order2);
+        _dbContext.Orders.Add(order1);
+        _dbContext.Orders.Add(order2);
     }
 
-    private static Product CreateProduct(Category category, string name, decimal price)
+    private static Product CreateProduct(string name, decimal price)
     {
         return new Product
         {
             Name = name,
-            Price = price,
-            Category = category
+            Price = price
         };
     }
 
-    private static Customer CreateCustomer(string firstName, string lastName, string middleName, string email, string phone)
+    private static Customer CreateCustomer(string firstName, string lastName, string? middleName, string email, string phone)
     {
         return new Customer
         {
@@ -128,7 +188,16 @@ class DbInitializer
         {
             Product = product,
             Order = order,
-            ProductCount = count
+            ProductsCount = count
+        };
+    }
+
+    private static ProductCategory CreateCategoryProduct(Category category, Product product)
+    {
+        return new ProductCategory
+        {
+            Category = category,
+            Product = product
         };
     }
 }

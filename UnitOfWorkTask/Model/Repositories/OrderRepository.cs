@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using UnitOfWorkTask.Model.Entities;
+﻿using UnitOfWorkTask.Model.Entities;
 using UnitOfWorkTask.Model.RepositoryAbstractions.BaseRepository;
 using UnitOfWorkTask.Model.RepositoryAbstractions.Interfaces;
 
@@ -11,14 +10,8 @@ public class OrderRepository : BaseEfRepository<Order>, IOrderRepository
 
     public Dictionary<Customer, decimal> GetCustomersAndSpentMoneySumDictionary()
     {
-        return _dbSet
-            .Include(o => o.OrderProducts)
-            .Include(o => o.Customer)
-            .Select(o => new
-            {
-                Id = o.Customer,
-                Sum = o.OrderProducts.Sum(op => op.ProductCount * op.Product.Price)
-            })
-            .ToDictionary(b => b.Id, b => b.Sum);
+        return _db.Set<OrderProduct>()
+            .GroupBy(op => op.Order)
+            .ToDictionary(o => o.Key.Customer, valueOp => valueOp.Sum(op => op.Product.Price * op.ProductsCount));
     }
 }

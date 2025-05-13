@@ -1,6 +1,8 @@
-﻿using UnitOfWorkTask.Model.RepositoryAbstractions.BaseRepository;
+﻿namespace UnitOfWorkTask.Model.RepositoryAbstractions.Interfaces;
 
-namespace UnitOfWorkTask.Model.RepositoryAbstractions.Interfaces;
+public interface IRepository
+{
+}
 
 public interface IRepository<T>: IRepository where T : class
 {
@@ -9,8 +11,6 @@ public interface IRepository<T>: IRepository where T : class
     void Update(T entity);
 
     void Delete(T entity);
-
-    void Save();
 
     T[] GetAll();
 

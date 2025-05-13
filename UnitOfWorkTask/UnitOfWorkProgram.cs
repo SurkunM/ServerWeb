@@ -99,9 +99,9 @@ internal class UnitOfWorkProgram
     {
         serviceCollection.AddDbContext<ShopDbContext>(options =>
         {
-            options.UseSqlServer(configuration.GetConnectionString("ShopConnection"));
+            options.UseSqlServer(configuration.GetConnectionString("UowShopConnection"));
             options.UseLazyLoadingProxies();
-        }, ServiceLifetime.Transient, ServiceLifetime.Transient);
+        }, ServiceLifetime.Scoped, ServiceLifetime.Transient);
 
         serviceCollection.AddTransient<DbInitializer>();
         serviceCollection.AddTransient<IUnitOfWork, UnitOfWork>();
@@ -130,7 +130,7 @@ internal class UnitOfWorkProgram
 
             try
             {
-                var dbInitializer = serviceProvider.GetRequiredService<DbInitializer>();
+                var dbInitializer = scope.ServiceProvider.GetRequiredService<DbInitializer>();
                 dbInitializer.Initialize();
             }
             catch (Exception ex)
@@ -141,9 +141,9 @@ internal class UnitOfWorkProgram
                 throw;
             }
 
-            var uow = serviceProvider.GetRequiredService<IUnitOfWork>();
+            var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
-            EditCustomerEmail(uow, 1, "0001@email.ru");
+            EditCustomerEmail(uow, 1, "2222@email.ru");
             DeleteProduct(uow, 6);
 
             var mostPurchasedProduct = GetMostPurchasedProduct(uow);

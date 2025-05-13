@@ -38,11 +38,6 @@ public abstract class BaseEfRepository<T> : IRepository<T> where T : class
         _db.Entry(entity).State = EntityState.Modified;
     }
 
-    public virtual void Save()
-    {
-        _db.SaveChanges();
-    }
-
     public virtual T[] GetAll()
     {
         return _dbSet.ToArray();
