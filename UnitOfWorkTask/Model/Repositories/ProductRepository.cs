@@ -10,10 +10,10 @@ public class ProductRepository : BaseEfRepository<Product>, IProductRepository
 
     public Product? GetMostPurchasedProduct()
     {
-        return _db.Set<OrderProduct>()        
-            .GroupBy(op => op.ProductId)
+        return _db.Set<OrderProduct>()
+            .GroupBy(op => op.Product)
             .OrderByDescending(g => g.Sum(op => op.ProductsCount))
-            .Select(g => g.First().Product)
+            .Select(g => g.Key)
             .FirstOrDefault();
     }
 }

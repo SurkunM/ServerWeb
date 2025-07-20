@@ -17,6 +17,11 @@ public class CategoryRepository : BaseEfRepository<Category>, ICategoryRepositor
                 ProductsCount = pc.Product.OrderProducts.Sum(op => op.ProductsCount)
             })
             .GroupBy(a => a.Category)
-            .ToDictionary(c => c.Key, a => a.Sum(pc => pc.ProductsCount));
+            .Select(g => new
+            {
+                Category = g.Key,
+                Count = g.Sum(pc => pc.ProductsCount)
+            })
+            .ToDictionary(g => g.Category, g => g.Count);
     }
 }

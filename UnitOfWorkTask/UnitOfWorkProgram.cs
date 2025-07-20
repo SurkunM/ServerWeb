@@ -10,8 +10,89 @@ using UnitOfWorkTask.Model.UnitOfWorkAbstractions;
 
 namespace UnitOfWorkTask;
 
-internal class UnitOfWorkProgram
+public class UnitOfWorkProgram
 {
+    public static void Main(string[] args)
+    {
+        try
+        {
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
+
+            var serviceCollection = new ServiceCollection();
+            var serviceProvider = ConfigureShopServices(serviceCollection, configuration);
+
+            using var scope = serviceProvider.CreateScope();
+
+            try
+            {
+                var dbInitializer = scope.ServiceProvider.GetRequiredService<DbInitializer>();
+                dbInitializer.Initialize();
+            }
+            catch (Exception ex)
+            {
+                var logger = LogManager.GetCurrentClassLogger();
+                logger.Error(ex, "При создании базы данных произошла ошибка.");
+
+                throw;
+            }
+
+            var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+
+            EditCustomerEmail(uow, 1, "2222@email.ru");
+            DeleteProduct(uow, 6);
+
+            var mostPurchasedProduct = GetMostPurchasedProduct(uow);
+
+            if (mostPurchasedProduct is null)
+            {
+                Console.WriteLine("Список товаров пуст");
+            }
+            else
+            {
+                Console.WriteLine("Самый часто покупаемый товар: {0}", mostPurchasedProduct.Name);
+            }
+
+            Console.WriteLine();
+
+            var customersAndSpentMoneySumDictionary = GetCustomersAndSpentMoneySumDictionary(uow);
+
+            if (customersAndSpentMoneySumDictionary.Count == 0)
+            {
+                Console.WriteLine("Коллекция пуста");
+            }
+            else
+            {
+                foreach (var customer in customersAndSpentMoneySumDictionary)
+                {
+                    Console.WriteLine("Покупатель {0}, сумма заказа {1:f2}", customer.Key.FirstName, customer.Value);
+                }
+            }
+
+            Console.WriteLine();
+
+            var categoryAndPurchasedProductsCountDictionary = GetCategoryAndPurchasedProductsCountDictionary(uow);
+
+            if (categoryAndPurchasedProductsCountDictionary.Count == 0)
+            {
+                Console.WriteLine("Коллекция пуста");
+            }
+            else
+            {
+                foreach (var category in categoryAndPurchasedProductsCountDictionary)
+                {
+                    Console.WriteLine("Категория: {0}, товаров куплено: {1}", category.Key.Name, category.Value);
+                }
+            }
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("Ошибка в работе программы.");
+        }
+    }
+
     private static void EditCustomerEmail(IUnitOfWork uow, int id, string newEmail)
     {
         try
@@ -112,86 +193,5 @@ internal class UnitOfWorkProgram
         serviceCollection.AddTransient<IOrderRepository, OrderRepository>();
 
         return serviceCollection.BuildServiceProvider();
-    }
-
-    public static void Main(string[] args)
-    {
-        try
-        {
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .Build();
-
-            var serviceCollection = new ServiceCollection();
-            var serviceProvider = ConfigureShopServices(serviceCollection, configuration);
-
-            using var scope = serviceProvider.CreateScope();
-
-            try
-            {
-                var dbInitializer = scope.ServiceProvider.GetRequiredService<DbInitializer>();
-                dbInitializer.Initialize();
-            }
-            catch (Exception ex)
-            {
-                var logger = LogManager.GetCurrentClassLogger();
-                logger.Error(ex, "При создании базы данных произошла ошибка.");
-
-                throw;
-            }
-
-            var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-
-            EditCustomerEmail(uow, 1, "2222@email.ru");
-            DeleteProduct(uow, 6);
-
-            var mostPurchasedProduct = GetMostPurchasedProduct(uow);
-
-            if (mostPurchasedProduct is null)
-            {
-                Console.WriteLine("Список товаров пуст");
-            }
-            else
-            {
-                Console.WriteLine("Самый часто покупаемый товар: {0}", mostPurchasedProduct.Name);
-            }
-
-            Console.WriteLine();
-
-            var customersAndSpentMoneySumDictionary = GetCustomersAndSpentMoneySumDictionary(uow);
-
-            if (customersAndSpentMoneySumDictionary.Count == 0)
-            {
-                Console.WriteLine("Коллекция пуста");
-            }
-            else
-            {
-                foreach (var customer in customersAndSpentMoneySumDictionary)
-                {
-                    Console.WriteLine("Покупатель {0}, сумма заказа {1:f2}", customer.Key.FirstName, customer.Value);
-                }
-            }
-
-            Console.WriteLine();
-
-            var categoryAndPurchasedProductsCountDictionary = GetCategoryAndPurchasedProductsCountDictionary(uow);
-
-            if (categoryAndPurchasedProductsCountDictionary.Count == 0)
-            {
-                Console.WriteLine("Коллекция пуста");
-            }
-            else
-            {
-                foreach (var category in categoryAndPurchasedProductsCountDictionary)
-                {
-                    Console.WriteLine("Категория: {0}, товаров куплено: {1}", category.Key.Name, category.Value);
-                }
-            }
-        }
-        catch (Exception)
-        {
-            Console.WriteLine("Ошибка в работе программы.");
-        }
     }
 }

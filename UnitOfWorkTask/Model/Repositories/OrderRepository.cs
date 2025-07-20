@@ -11,7 +11,12 @@ public class OrderRepository : BaseEfRepository<Order>, IOrderRepository
     public Dictionary<Customer, decimal> GetCustomersAndSpentMoneySumDictionary()
     {
         return _db.Set<OrderProduct>()
-            .GroupBy(op => op.Order)
-            .ToDictionary(o => o.Key.Customer, valueOp => valueOp.Sum(op => op.Product.Price * op.ProductsCount));
+            .GroupBy(op => op.Order.Customer)
+            .Select(g => new
+            {
+                Customer = g.Key,
+                Sum = g.Sum(op => op.Product.Price * op.ProductsCount)
+            })
+            .ToDictionary(x => x.Customer, v => v.Sum);
     }
 }
