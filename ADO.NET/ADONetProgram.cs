@@ -3,8 +3,50 @@ using System.Data;
 
 namespace ADO.NET;
 
-internal class ADONetProgram
+public class ADONetProgram
 {
+    public static void Main(string[] args)
+    {
+        var connectionString = "Server=.;Initial Catalog=Shop;Integrated Security=true;TrustServerCertificate=True;";
+
+        try
+        {
+            using var connection = new SqlConnection(connectionString);
+            connection.Open();
+
+            CreateCategory(connection, "Молочные продукты");
+            CreateCategory(connection, "Напитки");
+            CreateCategory(connection, "Фрукты");
+
+            CreateProduct(connection, "Молоко", 1, 20);
+            CreateProduct(connection, "Вода", 2, 5);
+            CreateProduct(connection, "Яблоко", 3, 22);
+            CreateProduct(connection, "Груша", 3, 32);
+
+            EditProductPrice(connection, "Яблоко", 65);
+            DeleteProduct(connection, "Груша");
+
+            Console.WriteLine("Количество продуктов: {0}", GetProductsCount(connection));
+
+            PrintDataReaderProductsAndCategoryNames(connection);
+            Console.WriteLine();
+
+            PrintDataSetProductsAndCategoryNames(connection);
+        }
+        catch (SqlException)
+        {
+            Console.WriteLine($"Выполнился некорректный запрос к БД или произошла ошибка соединения с БД.");
+        }
+        catch (InvalidOperationException)
+        {
+            Console.WriteLine($"Ошибка прав доступа к БД или данная БД сейчас используется другим пользователем.");
+        }
+        catch (Exception)
+        {
+            Console.WriteLine($"В работе программы произошла ошибка");
+        }
+    }
+
     private static int GetProductsCount(SqlConnection connection)
     {
         var sql = """
@@ -140,47 +182,5 @@ internal class ADONetProgram
         });
 
         command.ExecuteNonQuery();
-    }
-
-    public static void Main(string[] args)
-    {
-        var connectionString = "Server=.;Initial Catalog=Shop;Integrated Security=true;TrustServerCertificate=True;";
-
-        try
-        {
-            using var connection = new SqlConnection(connectionString);
-            connection.Open();
-
-            CreateCategory(connection, "Молочные продукты");
-            CreateCategory(connection, "Напитки");
-            CreateCategory(connection, "Фрукты");
-
-            CreateProduct(connection, "Молоко", 1, 20);
-            CreateProduct(connection, "Вода", 2, 5);
-            CreateProduct(connection, "Яблоко", 3, 22);
-            CreateProduct(connection, "Груша", 3, 32);
-
-            EditProductPrice(connection, "Яблоко", 65);
-            DeleteProduct(connection, "Груша");
-
-            Console.WriteLine("Количество продуктов: {0}", GetProductsCount(connection));
-
-            PrintDataReaderProductsAndCategoryNames(connection);
-            Console.WriteLine();
-
-            PrintDataSetProductsAndCategoryNames(connection);
-        }
-        catch (SqlException)
-        {
-            Console.WriteLine($"Выполнился некорректный запрос к БД или произошла ошибка соединения с БД.");
-        }
-        catch (InvalidOperationException)
-        {
-            Console.WriteLine($"Ошибка прав доступа к БД или данная БД сейчас используется другим пользователем.");
-        }
-        catch (Exception)
-        {
-            Console.WriteLine($"В работе программы произошла ошибка");
-        }
     }
 }
